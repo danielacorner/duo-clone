@@ -6,7 +6,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-duo-dark">
       <Sidebar />
-      <main className="ml-[70px] mr-96">
+      <main className="ml-20 mr-96">
         <Outlet />
       </main>
       <QuestPanel />

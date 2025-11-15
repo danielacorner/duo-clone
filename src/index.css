@@ -1,6 +1,15 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-duo-green: #58cc02;
+  --color-duo-blue: #1cb0f6;
+  --color-duo-purple: #ce82ff;
+  --color-duo-orange: #ff9600;
+  --color-duo-red: #ff4b4b;
+  --color-duo-yellow: #ffc800;
+  --color-duo-dark: #131f24;
+  --color-duo-gray: #777777;
+}
 
 body {
   margin: 0;

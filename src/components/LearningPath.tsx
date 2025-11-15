@@ -7,53 +7,105 @@ interface LessonNodeProps {
 }
 
 function LessonNode({ node, onClick }: LessonNodeProps) {
-  const getNodeColor = () => {
-    if (node.status === 'locked') return 'bg-gray-600 cursor-not-allowed';
-    if (node.status === 'completed') return 'bg-duo-yellow hover:bg-yellow-500';
-    return 'bg-duo-green hover:bg-green-600';
+  const getNodeStyles = () => {
+    if (node.status === 'locked') {
+      return {
+        bg: 'bg-gray-700',
+        shadow: 'shadow-lg',
+        border: 'border-4 border-gray-800',
+        cursor: 'cursor-not-allowed',
+        icon: '🔒',
+        showCheckmark: false,
+      };
+    }
+    if (node.status === 'completed') {
+      if (node.type === 'story') {
+        return {
+          bg: 'bg-gradient-to-br from-pink-400 to-pink-500',
+          shadow: 'shadow-xl shadow-pink-500/50',
+          border: 'border-4 border-pink-300',
+          cursor: 'cursor-pointer hover:scale-110',
+          icon: '📖',
+          showCheckmark: true,
+        };
+      }
+      return {
+        bg: 'bg-gradient-to-br from-yellow-400 to-yellow-500',
+        shadow: 'shadow-xl shadow-yellow-500/50',
+        border: 'border-4 border-yellow-300',
+        cursor: 'cursor-pointer hover:scale-110',
+        icon: '✓',
+        showCheckmark: true,
+      };
+    }
+    // Available
+    if (node.type === 'practice') {
+      return {
+        bg: 'bg-gradient-to-br from-pink-400 to-pink-600',
+        shadow: 'shadow-xl shadow-pink-500/50',
+        border: 'border-4 border-pink-300',
+        cursor: 'cursor-pointer hover:scale-110',
+        icon: '🔄',
+        showCheckmark: false,
+      };
+    }
+    return {
+      bg: 'bg-gradient-to-br from-pink-400 to-pink-600',
+      shadow: 'shadow-xl shadow-pink-500/50',
+      border: 'border-4 border-pink-300',
+      cursor: 'cursor-pointer hover:scale-110',
+      icon: '📝',
+      showCheckmark: false,
+    };
   };
 
-  const getNodeIcon = () => {
-    if (node.type === 'story') return '📖';
-    if (node.type === 'practice') return '🔧';
-    if (node.type === 'unit-review') return '⭐';
-    if (node.type === 'chest') return '🎁';
-    return '📝';
-  };
-
-  const getNodeStatus = () => {
-    if (node.status === 'completed') return '✓';
-    if (node.status === 'locked') return '🔒';
-    return '';
-  };
+  const styles = getNodeStyles();
 
   return (
     <div
-      className="absolute"
+      className="absolute transform -translate-x-1/2"
       style={{ left: `${node.position.x}%`, top: `${node.position.y}%` }}
     >
       <button
         onClick={onClick}
         disabled={node.status === 'locked'}
-        className={`w-20 h-20 rounded-full ${getNodeColor()} transition-all transform hover:scale-110 shadow-lg flex items-center justify-center text-3xl relative group`}
+        className={`relative w-24 h-24 rounded-full ${styles.bg} ${styles.shadow} ${styles.border} ${styles.cursor} transition-all duration-300 flex items-center justify-center text-4xl font-bold`}
       >
-        <span>{getNodeIcon()}</span>
-        {node.status === 'completed' && (
-          <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-            <span className="text-white text-xl">{getNodeStatus()}</span>
+        {node.type === 'practice' && node.status === 'completed' ? (
+          <div className="relative w-full h-full flex items-center justify-center">
+            <svg className="absolute inset-0 w-full h-full -rotate-90">
+              <circle
+                cx="48"
+                cy="48"
+                r="40"
+                stroke="rgba(236, 72, 153, 0.3)"
+                strokeWidth="6"
+                fill="none"
+              />
+              <circle
+                cx="48"
+                cy="48"
+                r="40"
+                stroke="#EC4899"
+                strokeWidth="6"
+                fill="none"
+                strokeDasharray={`${2 * Math.PI * 40}`}
+                strokeDashoffset={`${2 * Math.PI * 40 * 0.3}`}
+                strokeLinecap="round"
+              />
+            </svg>
+            <span className="text-white text-3xl">💪</span>
           </div>
+        ) : (
+          <span className="text-white drop-shadow-lg">{styles.icon}</span>
         )}
-        {node.status === 'locked' && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
-            <span className="text-2xl">🔒</span>
+
+        {styles.showCheckmark && (
+          <div className="absolute -top-2 -right-2 w-10 h-10 bg-white rounded-full flex items-center justify-center border-4 border-duo-dark shadow-lg">
+            <span className="text-duo-yellow text-2xl font-bold">✓</span>
           </div>
         )}
       </button>
-
-      {/* Connecting line to next node */}
-      <svg className="absolute top-full left-1/2 -translate-x-1/2" width="4" height="60">
-        <line x1="2" y1="0" x2="2" y2="60" stroke="#4B5563" strokeWidth="4" strokeDasharray="8,4" />
-      </svg>
     </div>
   );
 }
@@ -67,52 +119,40 @@ export default function LearningPath() {
   };
 
   return (
-    <div className="ml-20 mr-96 min-h-screen bg-gradient-to-b from-duo-dark to-gray-900 overflow-y-auto">
+    <div className="min-h-screen bg-gradient-to-b from-duo-dark to-gray-900 overflow-y-auto">
       <div className="max-w-3xl mx-auto py-12 px-6">
         {/* Header */}
         <div className="mb-12 text-center">
-          <div className="inline-flex items-center gap-4 bg-duo-blue px-8 py-4 rounded-3xl mb-6">
-            <span className="text-4xl">🦉</span>
-            <div className="text-left">
-              <h1 className="text-white text-2xl font-bold">섹션 4, 유닛 10</h1>
-              <p className="text-white text-sm opacity-90">업무 프로젝트 논의하기</p>
+          <div className="inline-flex items-center gap-4 bg-gradient-to-r from-pink-400 to-pink-500 px-8 py-5 rounded-3xl mb-6 shadow-xl">
+            <button className="text-white text-2xl hover:scale-110 transition-transform">←</button>
+            <div className="text-left flex-1">
+              <p className="text-white text-xs opacity-80 mb-1">섹션 4, 유닛 11</p>
+              <h1 className="text-white text-xl font-bold">자기계발 조언하기</h1>
             </div>
-            <button className="ml-4 bg-white bg-opacity-20 hover:bg-opacity-30 p-3 rounded-xl transition-all">
+            <button className="bg-white bg-opacity-20 hover:bg-opacity-30 p-3 rounded-xl transition-all">
               <span className="text-white text-xl">📋</span>
             </button>
           </div>
 
-          {/* Success indicators */}
-          <div className="flex justify-center gap-6 mb-8">
-            <div className="w-20 h-20 bg-duo-blue rounded-full flex items-center justify-center shadow-lg">
-              <span className="text-4xl">✓</span>
-            </div>
-            <div className="w-20 h-20 bg-duo-blue rounded-full flex items-center justify-center shadow-lg">
-              <span className="text-4xl">🏆</span>
-            </div>
+          <div className="w-full h-1 bg-gray-700 rounded-full mb-2 max-w-md mx-auto">
+            <div className="h-full w-0 bg-gradient-to-r from-pink-400 to-pink-500 rounded-full" />
           </div>
-
-          <div className="w-full h-1 bg-gray-700 rounded-full mb-4">
-            <div className="h-full w-1/3 bg-gradient-to-r from-duo-blue to-duo-purple rounded-full" />
-          </div>
-          <p className="text-gray-400 text-sm">자기계발 조언하기</p>
+          <p className="text-gray-500 text-sm mb-8">자기계발 조언하기</p>
         </div>
 
         {/* Units */}
         {units.map((unit, unitIndex) => (
           <div key={unit.id} className="mb-24">
             {/* Unit Header */}
-            <div className="mb-12 text-center">
-              <div className="inline-block bg-gradient-to-r from-duo-blue to-duo-purple px-6 py-3 rounded-2xl mb-3">
-                <h2 className="text-white text-xl font-bold">{unit.title}</h2>
-              </div>
-              <p className="text-gray-400 text-sm">{unit.description}</p>
+            <div className="mb-16 text-center">
+              <div className="h-px w-full bg-gray-700 mb-4" />
+              <h2 className="text-gray-500 text-sm font-semibold tracking-wider">{unit.description}</h2>
             </div>
 
             {/* Lesson Nodes */}
-            <div className="relative min-h-[500px]">
+            <div className="relative min-h-[600px]">
               {/* Background path line */}
-              <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gray-700 -translate-x-1/2 opacity-30" />
+              <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gray-700 -translate-x-1/2 opacity-20" />
 
               {unit.nodes.map((node, nodeIndex) => (
                 <LessonNode
@@ -122,35 +162,56 @@ export default function LearningPath() {
                 />
               ))}
 
-              {/* Unit completion treasure chest or icon */}
+              {/* Character illustration - appears after 3rd lesson */}
               {unitIndex === 0 && (
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
-                  <div className="w-24 h-24 bg-gray-600 rounded-2xl flex items-center justify-center text-4xl shadow-lg relative">
-                    <span>🔒</span>
+                <>
+                  <div className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 z-10">
+                    <div className="relative">
+                      {/* Character */}
+                      <div className="w-40 h-32 flex items-center justify-center">
+                        <div className="text-7xl transform rotate-12">🧑‍💼</div>
+                      </div>
+                      {/* Speech bubble with "시작" */}
+                      <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-gray-700 px-6 py-2 rounded-2xl shadow-lg">
+                        <span className="text-white font-bold text-sm">시작</span>
+                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-gray-700"></div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+
+                  {/* Treasure Chest */}
+                  <div className="absolute left-1/2 top-[85%] -translate-x-1/2">
+                    <div className="w-28 h-28 bg-gray-700 rounded-2xl flex items-center justify-center text-5xl shadow-2xl border-4 border-gray-800 relative">
+                      <span>🏺</span>
+                    </div>
+                  </div>
+                </>
               )}
             </div>
           </div>
         ))}
 
-        {/* Bottom character */}
-        <div className="text-center mb-12">
-          <div className="inline-block relative">
-            <div className="w-32 h-32 bg-gray-700 rounded-full flex items-center justify-center shadow-lg">
-              <span className="text-6xl">🦉</span>
+        {/* Bottom Icons */}
+        <div className="flex justify-center gap-8 mb-16">
+          {/* Guidebook */}
+          <button className="group">
+            <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center text-4xl shadow-lg hover:bg-gray-600 transition-all border-4 border-gray-800">
+              📚
             </div>
-            <div className="absolute -bottom-2 -right-2 bg-gray-600 px-4 py-2 rounded-xl">
-              <span className="text-white text-sm font-semibold">시작</span>
-            </div>
-          </div>
-        </div>
+          </button>
 
-        {/* Guide Book Button */}
-        <div className="text-center">
-          <button className="bg-gray-700 hover:bg-gray-600 px-8 py-4 rounded-2xl transition-all shadow-lg">
-            <span className="text-4xl block mb-2">📚</span>
-            <span className="text-white text-sm font-semibold">가이드북</span>
+          {/* Star Achievement */}
+          <button className="group">
+            <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center text-4xl shadow-lg hover:bg-gray-600 transition-all border-4 border-gray-800">
+              ⭐
+            </div>
+          </button>
+
+          {/* Trophy Achievement */}
+          <button className="group">
+            <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center text-4xl shadow-lg hover:bg-gray-600 transition-all border-4 border-gray-800">
+              🏆
+            </div>
           </button>
         </div>
       </div>

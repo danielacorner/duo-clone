@@ -24,7 +24,7 @@ function LessonNode({ node, onClick }: LessonNodeProps) {
     if (node.status === "completed") {
       if (node.type === "story") {
         return {
-          bg: "bg-gradient-to-br from-pink-400 to-pink-500",
+          bg: "bg-linear-to-br from-pink-400 to-pink-500",
           shadow: "shadow-xl shadow-pink-500/50",
           border: "border-4 border-pink-300",
           cursor: "cursor-pointer hover:scale-110",
@@ -33,7 +33,7 @@ function LessonNode({ node, onClick }: LessonNodeProps) {
         };
       }
       return {
-        bg: "bg-gradient-to-br from-yellow-400 to-yellow-500",
+        bg: "bg-linear-to-br from-yellow-400 to-yellow-500",
         shadow: "shadow-xl shadow-yellow-500/50",
         border: "border-4 border-yellow-300",
         cursor: "cursor-pointer hover:scale-110",
@@ -44,7 +44,7 @@ function LessonNode({ node, onClick }: LessonNodeProps) {
     // Available
     if (node.type === "practice") {
       return {
-        bg: "bg-gradient-to-br from-pink-400 to-pink-600",
+        bg: "bg-linear-to-br from-pink-400 to-pink-600",
         shadow: "shadow-xl shadow-pink-500/50",
         border: "border-4 border-pink-300",
         cursor: "cursor-pointer hover:scale-110",
@@ -53,7 +53,7 @@ function LessonNode({ node, onClick }: LessonNodeProps) {
       };
     }
     return {
-      bg: "bg-gradient-to-br from-pink-400 to-pink-600",
+      bg: "bg-linear-to-br from-pink-400 to-pink-600",
       shadow: "shadow-xl shadow-pink-500/50",
       border: "border-4 border-pink-300",
       cursor: "cursor-pointer hover:scale-110",
@@ -136,11 +136,11 @@ export default function LearningPath() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-duo-dark to-gray-900 overflow-y-auto">
+    <div className="min-h-screen bg-linear-to-b from-duo-dark to-gray-900 overflow-y-auto">
       <div className="max-w-3xl mx-auto py-12 px-6">
         {/* Header */}
         <div className="mb-12 text-center">
-          <div className="inline-flex items-center gap-4 bg-gradient-to-r from-pink-400 to-pink-500 px-8 py-5 rounded-3xl mb-6 shadow-xl">
+          <div className="inline-flex items-center gap-4 bg-linear-to-r from-pink-400 to-pink-500 px-8 py-5 rounded-3xl mb-6 shadow-xl">
             <button className="text-white text-2xl hover:scale-110 transition-transform">
               ←
             </button>
@@ -158,7 +158,7 @@ export default function LearningPath() {
           </div>
 
           <div className="w-full h-1 bg-gray-700 rounded-full mb-2 max-w-md mx-auto">
-            <div className="h-full w-0 bg-gradient-to-r from-pink-400 to-pink-500 rounded-full" />
+            <div className="h-full w-0 bg-linear-to-r from-pink-400 to-pink-500 rounded-full" />
           </div>
           <p className="text-gray-500 text-sm mb-8">자기계발 조언하기</p>
         </div>

@@ -12,6 +12,13 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  rectSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { lessons } from "../data/lessons";
 import { useStore } from "../store/useStore";
 
@@ -23,21 +30,78 @@ interface WordButtonProps {
   disabled?: boolean;
   showFeedback?: boolean;
   isCorrect?: boolean;
+  isSortable?: boolean;
 }
 
-function WordButton({
+// Sortable word button for answer area (can be rearranged)
+function SortableWordButton({
   word,
   id,
-  fromBank,
   onClick,
   disabled,
   showFeedback,
   isCorrect,
-}: WordButtonProps) {
+}: Omit<WordButtonProps, 'fromBank' | 'isSortable'>) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id,
+    disabled: disabled || showFeedback,
+    transition: {
+      duration: 250,
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+    },
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition: transition || 'transform 250ms cubic-bezier(0.25, 1, 0.5, 1)',
+    zIndex: isDragging ? 1000 : 'auto',
+  };
+
+  return (
+    <button
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      onClick={onClick}
+      disabled={disabled || showFeedback}
+      className={`px-6 py-3 rounded-2xl font-bold text-lg ${
+        isDragging ? "opacity-50 scale-105" : "hover:scale-105 active:scale-95"
+      } ${
+        showFeedback
+          ? isCorrect
+            ? "bg-green-500 text-white cursor-default"
+            : "bg-red-500 text-white cursor-default"
+          : "bg-gray-700 text-white hover:bg-gray-600"
+      } ${
+        disabled
+          ? "opacity-50 cursor-not-allowed"
+          : "cursor-grab active:cursor-grabbing"
+      }`}
+    >
+      {word}
+    </button>
+  );
+}
+
+// Draggable word button for bank (can only be moved to answer)
+function DraggableWordButton({
+  word,
+  id,
+  onClick,
+  disabled,
+}: Pick<WordButtonProps, 'word' | 'id' | 'onClick' | 'disabled'>) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id,
-      disabled: disabled || showFeedback,
+      disabled,
     });
 
   const style = transform
@@ -54,21 +118,11 @@ function WordButton({
       {...listeners}
       {...attributes}
       onClick={onClick}
-      disabled={disabled || showFeedback}
+      disabled={disabled}
       className={`px-6 py-3 rounded-2xl font-bold text-lg transition-all ${
         isDragging ? "opacity-50 scale-105" : ""
-      } ${
-        showFeedback && !fromBank
-          ? isCorrect
-            ? "bg-green-500 text-white cursor-default"
-            : "bg-red-500 text-white cursor-default"
-          : fromBank
-          ? "bg-gray-800 hover:bg-gray-700 text-white border-2 border-gray-700 hover:border-gray-600 hover:scale-105 active:scale-95"
-          : "bg-gray-700 text-white hover:bg-gray-600 hover:scale-105 active:scale-95"
-      } ${
-        disabled
-          ? "opacity-50 cursor-not-allowed"
-          : "cursor-grab active:cursor-grabbing"
+      } bg-gray-800 hover:bg-gray-700 text-white border-2 border-gray-700 hover:border-gray-600 hover:scale-105 active:scale-95 ${
+        disabled ? "opacity-50 cursor-not-allowed" : "cursor-grab active:cursor-grabbing"
       }`}
     >
       {word}
@@ -158,22 +212,32 @@ export default function Lesson() {
     const activeId = active.id as string;
     const overId = over.id as string;
 
-    // Extract word and location from ID (format: "bank-word-index" or "selected-word-index")
+    // Extract location from ID (format: "bank-word-index" or "selected-word-index")
     const [activeLocation, , activeIndex] = activeId.split("-");
-    const [overLocation] = overId.split("-");
+    const [overLocation, , overIndex] = overId.split("-");
 
-    if (activeLocation === "bank" && overLocation === "answer") {
-      // Move from bank to answer area
+    // Case 1: Reordering within answer area
+    if (activeLocation === "selected" && overLocation === "selected") {
+      const oldIndex = parseInt(activeIndex);
+      const newIndex = parseInt(overIndex);
+
+      if (!isNaN(oldIndex) && !isNaN(newIndex) && oldIndex !== newIndex) {
+        setSelectedWords(arrayMove(selectedWords, oldIndex, newIndex));
+      }
+    }
+    // Case 2: Moving from bank to answer area
+    else if (activeLocation === "bank" && overLocation === "answer") {
       const wordIndex = availableWords.findIndex(
-        (w, i) => `bank-${w}-${i}` === activeId
+        (word, i) => `bank-${word}-${i}` === activeId
       );
       if (wordIndex !== -1) {
         const word = availableWords[wordIndex];
         setSelectedWords([...selectedWords, word]);
         setAvailableWords(availableWords.filter((_, i) => i !== wordIndex));
       }
-    } else if (activeLocation === "selected" && overLocation === "bank") {
-      // Move from answer back to bank
+    }
+    // Case 3: Moving from answer back to bank
+    else if (activeLocation === "selected" && overLocation === "bank") {
       const wordIndex = parseInt(activeIndex);
       if (!isNaN(wordIndex) && wordIndex < selectedWords.length) {
         const word = selectedWords[wordIndex];
@@ -308,33 +372,35 @@ export default function Lesson() {
               id="answer-area"
               className="mb-8 min-h-[120px] border-b-2 border-gray-700 pb-4 rounded-xl"
             >
-              <div className="flex flex-wrap gap-3">
-                {selectedWords.map((word, index) => (
-                  <WordButton
-                    key={`selected-${index}`}
-                    id={`selected-${word}-${index}`}
-                    word={word}
-                    fromBank={false}
-                    onClick={() => handleWordClick(word, false)}
-                    showFeedback={showFeedback}
-                    isCorrect={isCorrect ?? false}
-                  />
-                ))}
-              </div>
+              <SortableContext
+                items={selectedWords.map((word, index) => `selected-${word}-${index}`)}
+                strategy={rectSortingStrategy}
+              >
+                <div className="flex flex-wrap gap-3">
+                  {selectedWords.map((word, index) => (
+                    <SortableWordButton
+                      key={`selected-${index}`}
+                      id={`selected-${word}-${index}`}
+                      word={word}
+                      onClick={() => handleWordClick(word, false)}
+                      showFeedback={showFeedback}
+                      isCorrect={isCorrect ?? false}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
             </DroppableArea>
 
             {/* Word bank */}
             <DroppableArea id="bank-area" className="mb-8">
               <div className="flex flex-wrap gap-3 justify-center">
                 {availableWords.map((word, index) => (
-                  <WordButton
+                  <DraggableWordButton
                     key={`available-${index}`}
                     id={`bank-${word}-${index}`}
                     word={word}
-                    fromBank={true}
                     onClick={() => handleWordClick(word, true)}
-                    showFeedback={showFeedback}
-                    isCorrect={false}
+                    disabled={showFeedback}
                   />
                 ))}
               </div>

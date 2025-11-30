@@ -2,11 +2,16 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './components/Home';
 import LearningPath from './components/LearningPath';
+import Lesson from './components/Lesson';
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Lesson route - fullscreen without layout */}
+        <Route path="/lesson/:lessonId" element={<Lesson />} />
+
+        {/* Main routes with layout */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="learn" element={<LearningPath />} />

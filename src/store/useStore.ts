@@ -91,7 +91,7 @@ const mockUnits: Unit[] = [
         id: "lesson-4",
         title: "레슨 1",
         type: "lesson",
-        status: "locked",
+        status: "available",
         level: 2,
         position: { x: 45, y: 10 },
       },

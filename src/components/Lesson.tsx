@@ -1,0 +1,249 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { lessons } from '../data/lessons';
+import type { Exercise } from '../data/lessons';
+import { useStore } from '../store/useStore';
+
+export default function Lesson() {
+  const { lessonId } = useParams<{ lessonId: string }>();
+  const navigate = useNavigate();
+  const { updateXP, completeLesson } = useStore();
+
+  const lesson = lessonId ? lessons[lessonId] : null;
+  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
+  const [selectedWords, setSelectedWords] = useState<string[]>([]);
+  const [availableWords, setAvailableWords] = useState<string[]>([]);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+
+  const currentExercise = lesson?.exercises[currentExerciseIndex];
+  const progress = lesson ? ((currentExerciseIndex + 1) / lesson.exercises.length) * 100 : 0;
+
+  useEffect(() => {
+    if (currentExercise) {
+      // Shuffle word bank for each exercise
+      setAvailableWords([...currentExercise.wordBank].sort(() => Math.random() - 0.5));
+      setSelectedWords([]);
+      setIsCorrect(null);
+      setShowFeedback(false);
+    }
+  }, [currentExercise]);
+
+  if (!lesson || !currentExercise) {
+    return (
+      <div className="min-h-screen bg-duo-dark flex items-center justify-center">
+        <div className="text-white text-2xl">Lesson not found</div>
+      </div>
+    );
+  }
+
+  const handleWordClick = (word: string, fromBank: boolean) => {
+    if (showFeedback) return; // Don't allow changes after checking
+
+    if (fromBank) {
+      // Add word to selected
+      setSelectedWords([...selectedWords, word]);
+      setAvailableWords(availableWords.filter((w, i) =>
+        i !== availableWords.findIndex(aw => aw === word)
+      ));
+    } else {
+      // Remove word from selected, return to bank
+      const indexToRemove = selectedWords.findIndex(w => w === word);
+      const newSelected = [...selectedWords];
+      newSelected.splice(indexToRemove, 1);
+      setSelectedWords(newSelected);
+      setAvailableWords([...availableWords, word]);
+    }
+  };
+
+  const handleCheck = () => {
+    const isAnswerCorrect =
+      selectedWords.length === currentExercise.correctAnswer.length &&
+      selectedWords.every((word, index) => word === currentExercise.correctAnswer[index]);
+
+    setIsCorrect(isAnswerCorrect);
+    setShowFeedback(true);
+  };
+
+  const handleContinue = () => {
+    if (isCorrect) {
+      if (currentExerciseIndex < lesson.exercises.length - 1) {
+        // Move to next exercise
+        setCurrentExerciseIndex(currentExerciseIndex + 1);
+      } else {
+        // Lesson complete
+        updateXP(lesson.xpReward);
+        if (lessonId) {
+          completeLesson(lessonId);
+        }
+        navigate('/learn');
+      }
+    } else {
+      // Try again - reset the exercise
+      setSelectedWords([]);
+      setAvailableWords([...currentExercise.wordBank].sort(() => Math.random() - 0.5));
+      setShowFeedback(false);
+      setIsCorrect(null);
+    }
+  };
+
+  const canCheck = selectedWords.length > 0;
+
+  return (
+    <div className="min-h-screen bg-duo-dark flex flex-col">
+      {/* Header with progress */}
+      <div className="bg-duo-dark border-b border-gray-700 p-4">
+        <div className="max-w-4xl mx-auto flex items-center gap-4">
+          <button
+            onClick={() => navigate('/learn')}
+            className="text-gray-400 hover:text-white text-3xl"
+          >
+            ×
+          </button>
+          <div className="flex-1 h-4 bg-gray-700 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-duo-green transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-duo-green text-xl">❤️</span>
+            <span className="text-duo-green text-xl">❤️</span>
+            <span className="text-duo-green text-xl">❤️</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="max-w-3xl w-full">
+          {/* Exercise type badge */}
+          <div className="flex items-center gap-2 mb-8">
+            <div className="w-10 h-10 bg-gradient-to-br from-pink-400 to-pink-500 rounded-full flex items-center justify-center">
+              <span className="text-xl">✨</span>
+            </div>
+            <span className="text-white text-lg font-bold">NEW WORD</span>
+          </div>
+
+          {/* Question */}
+          <h1 className="text-white text-3xl font-bold mb-6">{currentExercise.question}</h1>
+
+          {/* Prompt text (if any) */}
+          {currentExercise.prompt && (
+            <div className="mb-8 flex items-center gap-4">
+              <div className="text-8xl">💻</div>
+              <div className="bg-gray-800 px-6 py-4 rounded-2xl flex items-center gap-3">
+                <button className="text-duo-blue text-2xl">🔊</button>
+                <code className="text-white text-lg font-mono">{currentExercise.prompt}</code>
+              </div>
+            </div>
+          )}
+
+          {/* Answer area */}
+          <div className="mb-8 min-h-[120px] border-b-2 border-gray-700 pb-4">
+            <div className="flex flex-wrap gap-3">
+              {selectedWords.map((word, index) => (
+                <button
+                  key={`selected-${index}`}
+                  onClick={() => handleWordClick(word, false)}
+                  disabled={showFeedback}
+                  className={`px-6 py-3 rounded-2xl font-bold text-lg transition-all ${
+                    showFeedback
+                      ? isCorrect
+                        ? 'bg-green-500 text-white cursor-default'
+                        : 'bg-red-500 text-white cursor-default'
+                      : 'bg-gray-700 text-white hover:bg-gray-600 hover:scale-105'
+                  }`}
+                >
+                  {word}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Word bank */}
+          <div className="mb-8">
+            <div className="flex flex-wrap gap-3 justify-center">
+              {availableWords.map((word, index) => (
+                <button
+                  key={`available-${index}`}
+                  onClick={() => handleWordClick(word, true)}
+                  disabled={showFeedback}
+                  className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-2xl font-bold text-lg border-2 border-gray-700 hover:border-gray-600 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {word}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Hint */}
+          {currentExercise.hint && !showFeedback && (
+            <div className="text-gray-400 text-sm italic mb-8">
+              💡 Hint: {currentExercise.hint}
+            </div>
+          )}
+
+          {/* Feedback message */}
+          {showFeedback && (
+            <div
+              className={`mb-8 p-6 rounded-2xl ${
+                isCorrect ? 'bg-green-500 bg-opacity-20' : 'bg-red-500 bg-opacity-20'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-4xl">{isCorrect ? '✓' : '✗'}</span>
+                <div>
+                  <h3 className={`text-xl font-bold ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                    {isCorrect ? 'Excellent!' : 'Not quite!'}
+                  </h3>
+                  {!isCorrect && (
+                    <p className="text-white">
+                      Correct answer: {currentExercise.correctAnswer.join(' ')}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom action buttons */}
+      <div className="bg-duo-dark border-t border-gray-700 p-6">
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
+          <div className="flex-1" />
+
+          {!showFeedback ? (
+            <button
+              onClick={handleCheck}
+              disabled={!canCheck}
+              className={`px-12 py-4 rounded-2xl font-bold text-lg transition-all ${
+                canCheck
+                  ? 'bg-duo-green hover:bg-green-600 text-white hover:scale-105'
+                  : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              CHECK
+            </button>
+          ) : (
+            <button
+              onClick={handleContinue}
+              className={`px-12 py-4 rounded-2xl font-bold text-lg transition-all ${
+                isCorrect
+                  ? 'bg-duo-green hover:bg-green-600 text-white'
+                  : 'bg-red-500 hover:bg-red-600 text-white'
+              } hover:scale-105`}
+            >
+              {isCorrect
+                ? currentExerciseIndex < lesson.exercises.length - 1
+                  ? 'CONTINUE'
+                  : 'COMPLETE'
+                : 'TRY AGAIN'}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,5 +1,8 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import type { LessonNode as LessonNodeType } from '../types';
+import LessonModal from './LessonModal';
 
 interface LessonNodeProps {
   node: LessonNodeType;
@@ -112,10 +115,24 @@ function LessonNode({ node, onClick }: LessonNodeProps) {
 
 export default function LearningPath() {
   const { units } = useStore();
+  const navigate = useNavigate();
+  const [selectedLesson, setSelectedLesson] = useState<string | null>(null);
 
-  const handleNodeClick = (nodeId: string) => {
-    console.log('Clicked node:', nodeId);
-    // Future: navigate to lesson
+  const handleNodeClick = (nodeId: string, status: string) => {
+    // Only open modal for available or completed lessons
+    if (status !== 'locked') {
+      setSelectedLesson(nodeId);
+    }
+  };
+
+  const handleStartLesson = () => {
+    if (selectedLesson) {
+      navigate(`/lesson/${selectedLesson}`);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setSelectedLesson(null);
   };
 
   return (
@@ -158,7 +175,7 @@ export default function LearningPath() {
                 <LessonNode
                   key={node.id}
                   node={node}
-                  onClick={() => handleNodeClick(node.id)}
+                  onClick={() => handleNodeClick(node.id, node.status)}
                 />
               ))}
 
@@ -215,6 +232,15 @@ export default function LearningPath() {
           </button>
         </div>
       </div>
+
+      {/* Lesson Modal */}
+      {selectedLesson && (
+        <LessonModal
+          lessonId={selectedLesson}
+          onClose={handleCloseModal}
+          onStart={handleStartLesson}
+        />
+      )}
     </div>
   );
 }

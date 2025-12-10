@@ -269,10 +269,8 @@ export default function Lesson() {
       newAvailable[wordIndex] = null as any;
       setAvailableWords(newAvailable);
     } else {
-      // Replace word with null placeholder in answer area
-      const indexToRemove = selectedWords.findIndex((w) => w === word);
-      const newSelected = [...selectedWords];
-      newSelected[indexToRemove] = null as any;
+      // Remove word from answer area (no placeholder in answer section)
+      const newSelected = selectedWords.filter((w) => w !== word);
       setSelectedWords(newSelected);
 
       // Put word back in its original position in bank
@@ -289,11 +287,9 @@ export default function Lesson() {
   };
 
   const handleCheck = () => {
-    // Filter out null placeholders before checking
-    const actualWords = selectedWords.filter(w => w !== null);
     const isAnswerCorrect =
-      actualWords.length === currentExercise.correctAnswer.length &&
-      actualWords.every(
+      selectedWords.length === currentExercise.correctAnswer.length &&
+      selectedWords.every(
         (word, index) => word === currentExercise.correctAnswer[index]
       );
 
@@ -361,7 +357,7 @@ export default function Lesson() {
     setIsCorrect(null);
   };
 
-  const canCheck = selectedWords.filter(w => w !== null).length > 0;
+  const canCheck = selectedWords.length > 0;
 
   return (
     <DndContext
@@ -435,32 +431,19 @@ export default function Lesson() {
               className="mb-8 min-h-[120px] border-b-2 border-gray-700 pb-4 rounded-xl"
             >
               <SortableContext
-                items={selectedWords
-                  .map((word, index) => word !== null ? `selected-${word}-${index}` : null)
-                  .filter((id): id is string => id !== null)}
+                items={selectedWords.map((word, index) => `selected-${word}-${index}`)}
                 strategy={rectSortingStrategy}
               >
                 <div className="flex flex-wrap gap-3 content-start">
                   {selectedWords.map((word, index) => (
-                    word === null ? (
-                      // Empty placeholder box to maintain layout
-                      <div
-                        key={`placeholder-${index}`}
-                        className="px-6 py-3 rounded-2xl border-2 border-dashed border-gray-700 bg-transparent"
-                      >
-                        {/* Empty placeholder */}
-                        <span className="opacity-0 text-lg font-bold">word</span>
-                      </div>
-                    ) : (
-                      <SortableWordButton
-                        key={`selected-${index}`}
-                        id={`selected-${word}-${index}`}
-                        word={word}
-                        onClick={() => handleWordClick(word, false)}
-                        showFeedback={showFeedback}
-                        isCorrect={isCorrect ?? false}
-                      />
-                    )
+                    <SortableWordButton
+                      key={`selected-${index}`}
+                      id={`selected-${word}-${index}`}
+                      word={word}
+                      onClick={() => handleWordClick(word, false)}
+                      showFeedback={showFeedback}
+                      isCorrect={isCorrect ?? false}
+                    />
                   ))}
                 </div>
               </SortableContext>

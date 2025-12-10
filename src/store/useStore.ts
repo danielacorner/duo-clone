@@ -53,7 +53,7 @@ const mockUnits: Unit[] = [
         type: "lesson",
         status: "completed",
         level: 1,
-        position: { x: 50, y: 5 },
+        position: { x: 45, y: 5 },
       },
       {
         id: "lesson-2",
@@ -61,7 +61,7 @@ const mockUnits: Unit[] = [
         type: "story",
         status: "completed",
         level: 1,
-        position: { x: 50, y: 18 },
+        position: { x: 60, y: 18 },
       },
       {
         id: "lesson-3",
@@ -69,7 +69,7 @@ const mockUnits: Unit[] = [
         type: "lesson",
         status: "completed",
         level: 1,
-        position: { x: 50, y: 31 },
+        position: { x: 39, y: 31 },
       },
       {
         id: "practice-1",
@@ -77,7 +77,7 @@ const mockUnits: Unit[] = [
         type: "practice",
         status: "completed",
         level: 1,
-        position: { x: 50, y: 44 },
+        position: { x: 62, y: 44 },
       },
     ],
   },

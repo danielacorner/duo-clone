@@ -22,9 +22,8 @@
     "title": "오늘의 퀘스트",
     "viewAll": "모두 보기",
     "earnXP": "{{amount}} XP 획득하기",
-    "earnGoldXP": "골드 보너스 XP {{amount}}개 획득하기",
-    "completeLesson": "{{count}}개 레슨 완료하기",
-    "completeLesson_other": "{{count}}개 레슨 완료하기",
+    "earnComboXP": "콤보 보너스 XP {{amount}}개 획득하기",
+    "scoreInLessons": "레슨 {{count}}개에서 {{percent}}% 이상의 점수 받기",
     "progress": "{{current}} / {{total}}"
   },
   "lesson": {
@@ -67,5 +66,37 @@
   },
   "common": {
     "start": "시작"
+  },
+  "units": {
+    "unit1": {
+      "title": "유닛 1",
+      "description": "자기계발 조언하기"
+    },
+    "unit2": {
+      "title": "유닛 2",
+      "description": "기본 회화"
+    },
+    "unit3": {
+      "title": "유닛 3",
+      "description": "음식 주문하기"
+    },
+    "unit4": {
+      "title": "유닛 4",
+      "description": "업무 프로젝트 논의하기"
+    },
+    "unit5": {
+      "title": "유닛 5",
+      "description": "고급 React 패턴"
+    },
+    "unit6": {
+      "title": "유닛 6",
+      "description": "상태 관리"
+    },
+    "unit7": {
+      "title": "유닛 7",
+      "description": "성능 최적화"
+    },
+    "lesson": "레슨 {{number}}",
+    "practice": "연습"
   }
 }

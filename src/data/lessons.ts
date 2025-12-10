@@ -170,5 +170,181 @@ export const lessons: Record<string, Lesson> = {
         hint: 'Call the setter function with new value'
       }
     ]
+  },
+  'lesson-6': {
+    id: 'lesson-6',
+    title: 'useEffect Hook',
+    description: 'Handle side effects in React',
+    xpReward: 15,
+    exercises: [
+      {
+        id: 'ex-6-1',
+        type: 'word-bank',
+        question: 'Import useEffect hook',
+        correctAnswer: ['import', '{', 'useState,', 'useEffect', '}', 'from', 'react'],
+        wordBank: ['import', '{', 'useState,', 'useEffect', '}', 'from', 'react', 'useeffect', 'effect'],
+        hint: 'Named import alongside useState'
+      },
+      {
+        id: 'ex-6-2',
+        type: 'word-bank',
+        question: 'Run effect on mount',
+        correctAnswer: ['useEffect(()=>{', 'fetchData()', '},', '[]', ')'],
+        wordBank: ['useEffect(()=>{', 'fetchData()', '},', '[]', ')', '[data]', 'useEffect'],
+        hint: 'Empty dependency array runs once on mount'
+      }
+    ]
+  },
+  'lesson-7': {
+    id: 'lesson-7',
+    title: 'Conditional Rendering',
+    description: 'Show components conditionally',
+    xpReward: 10,
+    exercises: [
+      {
+        id: 'ex-7-1',
+        type: 'word-bank',
+        question: 'Render with ternary operator',
+        correctAnswer: ['{isLoggedIn', '?', '<Dashboard/>', ':', '<Login/>}'],
+        wordBank: ['{isLoggedIn', '?', '<Dashboard/>', ':', '<Login/>}', 'if', 'else', '&&'],
+        hint: 'Use ternary for if-else in JSX'
+      }
+    ]
+  },
+  'lesson-8': {
+    id: 'lesson-8',
+    title: 'Lists and Keys',
+    description: 'Render lists in React',
+    xpReward: 15,
+    exercises: [
+      {
+        id: 'ex-8-1',
+        type: 'word-bank',
+        question: 'Map array to JSX elements',
+        correctAnswer: ['{items.map(item', '=>', '<li', 'key={item.id}', '>{item.name}</li>)}'],
+        wordBank: ['{items.map(item', '=>', '<li', 'key={item.id}', '>{item.name}</li>)}', 'key=', 'id=', 'forEach'],
+        hint: 'Always add key prop to list items'
+      }
+    ]
+  },
+  'lesson-9': {
+    id: 'lesson-9',
+    title: 'Forms and Inputs',
+    description: 'Handle form inputs in React',
+    xpReward: 15,
+    exercises: [
+      {
+        id: 'ex-9-1',
+        type: 'word-bank',
+        question: 'Controlled input component',
+        correctAnswer: ['<input', 'value={name}', 'onChange={handleChange}', '/>'],
+        wordBank: ['<input', 'value={name}', 'onChange={handleChange}', '/>', 'onchange=', 'defaultValue='],
+        hint: 'Use value and onChange for controlled inputs'
+      }
+    ]
+  },
+  'lesson-10': {
+    id: 'lesson-10',
+    title: 'Lifting State Up',
+    description: 'Share state between components',
+    xpReward: 20,
+    exercises: [
+      {
+        id: 'ex-10-1',
+        type: 'word-bank',
+        question: 'Pass state setter as prop',
+        correctAnswer: ['<Child', 'value={count}', 'onChange={setCount}', '/>'],
+        wordBank: ['<Child', 'value={count}', 'onChange={setCount}', '/>', 'state=', 'setState='],
+        hint: 'Pass both value and setter to child'
+      }
+    ]
+  },
+  'lesson-11': {
+    id: 'lesson-11',
+    title: 'Context API',
+    description: 'Share data across component tree',
+    xpReward: 25,
+    exercises: [
+      {
+        id: 'ex-11-1',
+        type: 'word-bank',
+        question: 'Create a context',
+        correctAnswer: ['const', 'ThemeContext', '=', 'createContext()'],
+        wordBank: ['const', 'ThemeContext', '=', 'createContext()', 'React.createContext()', 'useContext()'],
+        hint: 'Use createContext to create a new context'
+      },
+      {
+        id: 'ex-11-2',
+        type: 'word-bank',
+        question: 'Use context in component',
+        correctAnswer: ['const', 'theme', '=', 'useContext(ThemeContext)'],
+        wordBank: ['const', 'theme', '=', 'useContext(ThemeContext)', 'getContext', 'Context.use'],
+        hint: 'useContext hook retrieves context value'
+      }
+    ]
+  },
+  'lesson-12': {
+    id: 'lesson-12',
+    title: 'Custom Hooks',
+    description: 'Create reusable hooks',
+    xpReward: 25,
+    exercises: [
+      {
+        id: 'ex-12-1',
+        type: 'word-bank',
+        question: 'Define custom hook',
+        correctAnswer: ['function', 'useLocalStorage(key)', '{', 'return', '[value,', 'setValue]', '}'],
+        wordBank: ['function', 'useLocalStorage(key)', '{', 'return', '[value,', 'setValue]', '}', 'const', 'hook'],
+        hint: 'Custom hooks must start with "use"'
+      }
+    ]
+  },
+  'lesson-13': {
+    id: 'lesson-13',
+    title: 'useReducer Hook',
+    description: 'Manage complex state logic',
+    xpReward: 30,
+    exercises: [
+      {
+        id: 'ex-13-1',
+        type: 'word-bank',
+        question: 'Use reducer for state',
+        correctAnswer: ['const', '[state,', 'dispatch]', '=', 'useReducer(reducer,', 'initialState)'],
+        wordBank: ['const', '[state,', 'dispatch]', '=', 'useReducer(reducer,', 'initialState)', 'useState', 'reducer'],
+        hint: 'useReducer takes reducer function and initial state'
+      }
+    ]
+  },
+  'lesson-14': {
+    id: 'lesson-14',
+    title: 'useMemo Hook',
+    description: 'Optimize expensive calculations',
+    xpReward: 30,
+    exercises: [
+      {
+        id: 'ex-14-1',
+        type: 'word-bank',
+        question: 'Memoize computed value',
+        correctAnswer: ['const', 'result', '=', 'useMemo(()=>', 'expensiveCalc(a,b),', '[a,b])'],
+        wordBank: ['const', 'result', '=', 'useMemo(()=>', 'expensiveCalc(a,b),', '[a,b])', 'memo', 'useEffect'],
+        hint: 'useMemo caches value until dependencies change'
+      }
+    ]
+  },
+  'lesson-15': {
+    id: 'lesson-15',
+    title: 'useCallback Hook',
+    description: 'Memoize callback functions',
+    xpReward: 30,
+    exercises: [
+      {
+        id: 'ex-15-1',
+        type: 'word-bank',
+        question: 'Memoize callback function',
+        correctAnswer: ['const', 'handleClick', '=', 'useCallback(()=>{', 'doSomething()', '},', '[dependency])'],
+        wordBank: ['const', 'handleClick', '=', 'useCallback(()=>{', 'doSomething()', '},', '[dependency])', 'useMemo', '[]'],
+        hint: 'useCallback prevents function recreation on every render'
+      }
+    ]
   }
 };

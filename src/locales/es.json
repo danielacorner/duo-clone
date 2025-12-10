@@ -22,9 +22,8 @@
     "title": "Misiones diarias",
     "viewAll": "Ver todo",
     "earnXP": "Ganar {{amount}} XP",
-    "earnGoldXP": "Ganar {{amount}} XP de bonificación de oro",
-    "completeLesson": "Completar {{count}} lección",
-    "completeLesson_other": "Completar {{count}} lecciones",
+    "earnComboXP": "Obtener bonus combo XP {{amount}} veces",
+    "scoreInLessons": "Obtener {{percent}}% o más en {{count}} lecciones",
     "progress": "{{current}} / {{total}}"
   },
   "lesson": {
@@ -67,5 +66,37 @@
   },
   "common": {
     "start": "Comenzar"
+  },
+  "units": {
+    "unit1": {
+      "title": "Unidad 1",
+      "description": "Consejos de desarrollo personal"
+    },
+    "unit2": {
+      "title": "Unidad 2",
+      "description": "Conversación básica"
+    },
+    "unit3": {
+      "title": "Unidad 3",
+      "description": "Pedir comida"
+    },
+    "unit4": {
+      "title": "Unidad 4",
+      "description": "Discutir proyectos de trabajo"
+    },
+    "unit5": {
+      "title": "Unidad 5",
+      "description": "Patrones avanzados de React"
+    },
+    "unit6": {
+      "title": "Unidad 6",
+      "description": "Gestión de estado"
+    },
+    "unit7": {
+      "title": "Unidad 7",
+      "description": "Optimización de rendimiento"
+    },
+    "lesson": "Lección {{number}}",
+    "practice": "Práctica"
   }
 }

@@ -71,7 +71,9 @@ export default function QuestPanel() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-white font-semibold text-sm mb-2">
-                    {quest.title}
+                    {quest.title === 'earnXP' && t('quests.earnXP', { amount: quest.total })}
+                    {quest.title === 'earnComboXP' && t('quests.earnComboXP', { amount: quest.total })}
+                    {quest.title === 'scoreInLessons' && t('quests.scoreInLessons', { percent: 80, count: quest.total })}
                   </h3>
                   <div className="relative">
                     <div className="h-4 bg-gray-700 rounded-full overflow-hidden">

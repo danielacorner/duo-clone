@@ -17,7 +17,7 @@ function LessonNode({ node, onClick }: LessonNodeProps) {
         bg: "bg-gray-700",
         shadow: "shadow-lg",
         border: "border-4 border-gray-800",
-        cursor: "cursor-not-allowed",
+        cursor: "cursor-pointer hover:scale-105",
         icon: "🔒",
         showCheckmark: false,
       };
@@ -72,7 +72,6 @@ function LessonNode({ node, onClick }: LessonNodeProps) {
     >
       <button
         onClick={onClick}
-        disabled={node.status === "locked"}
         className={`relative w-24 h-24 rounded-full ${styles.bg} ${styles.shadow} ${styles.border} ${styles.cursor} transition-all duration-300 flex items-center justify-center text-4xl font-bold`}
       >
         {node.type === "practice" && node.status === "completed" ? (
@@ -134,11 +133,9 @@ export default function LearningPath() {
 
   const firstAvailable = findFirstAvailableLesson();
 
-  const handleNodeClick = (nodeId: string, status: string) => {
-    // Only open modal for available or completed lessons
-    if (status !== "locked") {
-      setSelectedLesson(nodeId);
-    }
+  const handleNodeClick = (nodeId: string) => {
+    // Open modal for all lessons (including locked)
+    setSelectedLesson(nodeId);
   };
 
   const handleStartLesson = () => {
@@ -162,10 +159,10 @@ export default function LearningPath() {
             </button>
             <div className="text-left flex-1">
               <p className="text-white text-xs opacity-80 mb-1">
-                {units[0]?.title || "Unit 1"}
+                {units[0]?.title ? t(`units.${units[0].title}.title`) : "Unit 1"}
               </p>
               <h1 className="text-white text-xl font-bold">
-                {units[0]?.description || "Learning Path"}
+                {units[0]?.description ? t(`units.${units[0].description}.description`) : "Learning Path"}
               </h1>
             </div>
             <button className="bg-white bg-opacity-20 hover:bg-opacity-30 p-3 rounded-xl transition-all">
@@ -177,7 +174,7 @@ export default function LearningPath() {
             <div className="h-full w-0 bg-linear-to-r from-pink-400 to-pink-500 rounded-full" />
           </div>
           <p className="text-gray-500 text-sm mb-8">
-            {units[0]?.description || "Learning Path"}
+            {units[0]?.description ? t(`units.${units[0].description}.description`) : "Learning Path"}
           </p>
         </div>
 
@@ -188,7 +185,7 @@ export default function LearningPath() {
             <div className="mb-16 text-center">
               <div className="h-px w-full bg-gray-700 mb-4" />
               <h2 className="text-gray-500 text-sm font-semibold tracking-wider">
-                {unit.description}
+                {t(`units.${unit.description}.description`)}
               </h2>
             </div>
 
@@ -201,7 +198,7 @@ export default function LearningPath() {
                 <LessonNode
                   key={node.id}
                   node={node}
-                  onClick={() => handleNodeClick(node.id, node.status)}
+                  onClick={() => handleNodeClick(node.id)}
                 />
               ))}
 
@@ -256,13 +253,21 @@ export default function LearningPath() {
       </div>
 
       {/* Lesson Modal */}
-      {selectedLesson && (
-        <LessonModal
-          lessonId={selectedLesson}
-          onClose={handleCloseModal}
-          onStart={handleStartLesson}
-        />
-      )}
+      {selectedLesson && (() => {
+        // Find the selected lesson node to get its status
+        const selectedNode = units
+          .flatMap((unit) => unit.nodes)
+          .find((node) => node.id === selectedLesson);
+
+        return (
+          <LessonModal
+            lessonId={selectedLesson}
+            status={selectedNode?.status || 'locked'}
+            onClose={handleCloseModal}
+            onStart={handleStartLesson}
+          />
+        );
+      })()}
     </div>
   );
 }

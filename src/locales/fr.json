@@ -22,9 +22,8 @@
     "title": "Quêtes quotidiennes",
     "viewAll": "Voir tout",
     "earnXP": "Gagner {{amount}} XP",
-    "earnGoldXP": "Gagner {{amount}} XP bonus or",
-    "completeLesson": "Terminer {{count}} leçon",
-    "completeLesson_other": "Terminer {{count}} leçons",
+    "earnComboXP": "Obtenir un bonus combo XP {{amount}} fois",
+    "scoreInLessons": "Obtenir {{percent}}% ou plus dans {{count}} leçons",
     "progress": "{{current}} / {{total}}"
   },
   "lesson": {
@@ -67,5 +66,37 @@
   },
   "common": {
     "start": "Démarrer"
+  },
+  "units": {
+    "unit1": {
+      "title": "Unité 1",
+      "description": "Conseils de développement personnel"
+    },
+    "unit2": {
+      "title": "Unité 2",
+      "description": "Conversation de base"
+    },
+    "unit3": {
+      "title": "Unité 3",
+      "description": "Commander de la nourriture"
+    },
+    "unit4": {
+      "title": "Unité 4",
+      "description": "Discuter des projets de travail"
+    },
+    "unit5": {
+      "title": "Unité 5",
+      "description": "Modèles React avancés"
+    },
+    "unit6": {
+      "title": "Unité 6",
+      "description": "Gestion d'état"
+    },
+    "unit7": {
+      "title": "Unité 7",
+      "description": "Optimisation des performances"
+    },
+    "lesson": "Leçon {{number}}",
+    "practice": "Pratique"
   }
 }

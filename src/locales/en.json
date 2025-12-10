@@ -22,9 +22,8 @@
     "title": "Daily Quests",
     "viewAll": "View All",
     "earnXP": "Earn {{amount}} XP",
-    "earnGoldXP": "Earn {{amount}} Gold Bonus XP",
-    "completeLesson": "Complete {{count}} lesson",
-    "completeLesson_other": "Complete {{count}} lessons",
+    "earnComboXP": "Get combo bonus XP {{amount}} times",
+    "scoreInLessons": "Get {{percent}}% or higher in {{count}} lessons",
     "progress": "{{current}} / {{total}}"
   },
   "lesson": {
@@ -67,5 +66,37 @@
   },
   "common": {
     "start": "Start"
+  },
+  "units": {
+    "unit1": {
+      "title": "Unit 1",
+      "description": "Self-Improvement Advice"
+    },
+    "unit2": {
+      "title": "Unit 2",
+      "description": "Basic Conversation"
+    },
+    "unit3": {
+      "title": "Unit 3",
+      "description": "Ordering Food"
+    },
+    "unit4": {
+      "title": "Unit 4",
+      "description": "Discussing Work Projects"
+    },
+    "unit5": {
+      "title": "Unit 5",
+      "description": "Advanced React Patterns"
+    },
+    "unit6": {
+      "title": "Unit 6",
+      "description": "State Management"
+    },
+    "unit7": {
+      "title": "Unit 7",
+      "description": "Performance Optimization"
+    },
+    "lesson": "Lesson {{number}}",
+    "practice": "Practice"
   }
 }

@@ -8,12 +8,13 @@ interface AppState {
   updateXP: (amount: number) => void;
   updateQuestProgress: (questId: string, progress: number) => void;
   completeLesson: (lessonId: string) => void;
+  unlockLesson: (lessonId: string) => void;
 }
 
 const mockQuests: Quest[] = [
   {
     id: "1",
-    title: "30 XP 획득하기",
+    title: "earnXP", // Translation key
     description: "Earn 30 XP",
     icon: "⚡",
     progress: 8,
@@ -22,7 +23,7 @@ const mockQuests: Quest[] = [
   },
   {
     id: "2",
-    title: "콤보 보너스 XP 15개 획득하기",
+    title: "earnComboXP", // Translation key
     description: "Get combo bonus XP 15 times",
     icon: "⚡",
     progress: 3,
@@ -31,7 +32,7 @@ const mockQuests: Quest[] = [
   },
   {
     id: "3",
-    title: "레슨 3개에서 80% 이상의 점수 받기",
+    title: "scoreInLessons", // Translation key
     description: "Get 80% or higher in 3 lessons",
     icon: "🎯",
     progress: 1,
@@ -43,13 +44,13 @@ const mockQuests: Quest[] = [
 const mockUnits: Unit[] = [
   {
     id: "unit-1",
-    title: "유닛 1",
-    description: "자기계발 조언하기",
+    title: "unit1", // Translation key
+    description: "unit1", // Translation key
     number: 1,
     nodes: [
       {
         id: "lesson-1",
-        title: "레슨 1",
+        title: "lesson1", // Translation key
         type: "lesson",
         status: "completed",
         level: 1,
@@ -57,7 +58,7 @@ const mockUnits: Unit[] = [
       },
       {
         id: "lesson-2",
-        title: "레슨 2",
+        title: "lesson2", // Translation key
         type: "story",
         status: "completed",
         level: 1,
@@ -65,7 +66,7 @@ const mockUnits: Unit[] = [
       },
       {
         id: "lesson-3",
-        title: "레슨 3",
+        title: "lesson3", // Translation key
         type: "lesson",
         status: "completed",
         level: 1,
@@ -73,7 +74,7 @@ const mockUnits: Unit[] = [
       },
       {
         id: "practice-1",
-        title: "연습",
+        title: "practice", // Translation key
         type: "practice",
         status: "completed",
         level: 1,
@@ -83,13 +84,13 @@ const mockUnits: Unit[] = [
   },
   {
     id: "unit-2",
-    title: "유닛 2",
-    description: "기본 회화",
+    title: "unit2", // Translation key
+    description: "unit2", // Translation key
     number: 2,
     nodes: [
       {
         id: "lesson-4",
-        title: "레슨 1",
+        title: "lesson1", // Translation key
         type: "lesson",
         status: "available",
         level: 2,
@@ -97,7 +98,7 @@ const mockUnits: Unit[] = [
       },
       {
         id: "lesson-5",
-        title: "레슨 2",
+        title: "lesson2", // Translation key
         type: "lesson",
         status: "locked",
         level: 2,
@@ -105,7 +106,7 @@ const mockUnits: Unit[] = [
       },
       {
         id: "lesson-6",
-        title: "레슨 3",
+        title: "lesson3", // Translation key
         type: "lesson",
         status: "locked",
         level: 2,
@@ -115,13 +116,13 @@ const mockUnits: Unit[] = [
   },
   {
     id: "unit-3",
-    title: "유닛 3",
-    description: "음식 주문하기",
+    title: "unit3", // Translation key
+    description: "unit3", // Translation key
     number: 3,
     nodes: [
       {
         id: "lesson-7",
-        title: "레슨 1",
+        title: "lesson1", // Translation key
         type: "lesson",
         status: "locked",
         level: 3,
@@ -129,7 +130,7 @@ const mockUnits: Unit[] = [
       },
       {
         id: "lesson-8",
-        title: "레슨 2",
+        title: "lesson2", // Translation key
         type: "lesson",
         status: "locked",
         level: 3,
@@ -139,13 +140,13 @@ const mockUnits: Unit[] = [
   },
   {
     id: "unit-4",
-    title: "유닛 4",
-    description: "업무 프로젝트 논의하기",
+    title: "unit4", // Translation key
+    description: "unit4", // Translation key
     number: 4,
     nodes: [
       {
         id: "lesson-9",
-        title: "레슨 1",
+        title: "lesson1", // Translation key
         type: "lesson",
         status: "locked",
         level: 4,
@@ -153,11 +154,75 @@ const mockUnits: Unit[] = [
       },
       {
         id: "lesson-10",
-        title: "레슨 2",
+        title: "lesson2", // Translation key
         type: "lesson",
         status: "locked",
         level: 4,
         position: { x: 45, y: 25 },
+      },
+    ],
+  },
+  {
+    id: "unit-5",
+    title: "unit5", // Translation key
+    description: "unit5", // Translation key
+    number: 5,
+    nodes: [
+      {
+        id: "lesson-11",
+        title: "lesson1", // Translation key
+        type: "lesson",
+        status: "locked",
+        level: 5,
+        position: { x: 40, y: 10 },
+      },
+      {
+        id: "lesson-12",
+        title: "lesson2", // Translation key
+        type: "lesson",
+        status: "locked",
+        level: 5,
+        position: { x: 55, y: 25 },
+      },
+    ],
+  },
+  {
+    id: "unit-6",
+    title: "unit6", // Translation key
+    description: "unit6", // Translation key
+    number: 6,
+    nodes: [
+      {
+        id: "lesson-13",
+        title: "lesson1", // Translation key
+        type: "lesson",
+        status: "locked",
+        level: 6,
+        position: { x: 45, y: 10 },
+      },
+    ],
+  },
+  {
+    id: "unit-7",
+    title: "unit7", // Translation key
+    description: "unit7", // Translation key
+    number: 7,
+    nodes: [
+      {
+        id: "lesson-14",
+        title: "lesson1", // Translation key
+        type: "lesson",
+        status: "locked",
+        level: 7,
+        position: { x: 50, y: 10 },
+      },
+      {
+        id: "lesson-15",
+        title: "lesson2", // Translation key
+        type: "lesson",
+        status: "locked",
+        level: 7,
+        position: { x: 40, y: 25 },
       },
     ],
   },
@@ -195,6 +260,17 @@ export const useStore = create<AppState>((set) => ({
         nodes: unit.nodes.map((node) =>
           node.id === lessonId
             ? { ...node, status: "completed" as const }
+            : node
+        ),
+      })),
+    })),
+  unlockLesson: (lessonId: string) =>
+    set((state) => ({
+      units: state.units.map((unit) => ({
+        ...unit,
+        nodes: unit.nodes.map((node) =>
+          node.id === lessonId
+            ? { ...node, status: "available" as const }
             : node
         ),
       })),

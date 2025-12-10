@@ -35,7 +35,8 @@
     "correctAnswer": "Correct answer:",
     "check": "CHECK",
     "continue": "CONTINUE",
-    "complete": "COMPLETE"
+    "complete": "COMPLETE",
+    "skip": "SKIP"
   },
   "learningPath": {
     "unit": "Unit {{number}}",

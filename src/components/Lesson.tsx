@@ -165,6 +165,7 @@ export default function Lesson() {
     lesson?.exercises.map(ex => ex.id) || []
   );
   const [completedExerciseIds, setCompletedExerciseIds] = useState<Set<string>>(new Set());
+  const [skippedExerciseIds, setSkippedExerciseIds] = useState<Set<string>>(new Set());
   const [hearts, setHearts] = useState(3);
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
   const [availableWords, setAvailableWords] = useState<string[]>([]);
@@ -183,9 +184,6 @@ export default function Lesson() {
   const currentExerciseId = exerciseQueue[0];
   const currentExercise = lesson?.exercises.find(ex => ex.id === currentExerciseId);
   const totalExercises = lesson?.exercises.length || 0;
-  const progress = totalExercises > 0
-    ? (completedExerciseIds.size / totalExercises) * 100
-    : 0;
 
   // Reset state when exercise changes
   useEffect(() => {
@@ -295,6 +293,12 @@ export default function Lesson() {
     if (isCorrect) {
       // Mark exercise as completed
       setCompletedExerciseIds(prev => new Set([...prev, currentExerciseId]));
+      // Remove from skipped if it was there
+      setSkippedExerciseIds(prev => {
+        const newSet = new Set([...prev]);
+        newSet.delete(currentExerciseId);
+        return newSet;
+      });
 
       // Remove from queue
       const newQueue = exerciseQueue.slice(1);
@@ -331,6 +335,20 @@ export default function Lesson() {
     setIsCorrect(null);
   };
 
+  const handleSkip = () => {
+    // Mark exercise as skipped
+    setSkippedExerciseIds(prev => new Set([...prev, currentExerciseId]));
+
+    // Move current exercise to end of queue
+    const newQueue = [...exerciseQueue.slice(1), currentExerciseId];
+    setExerciseQueue(newQueue);
+
+    // Reset state for next exercise
+    setSelectedWords([]);
+    setShowFeedback(false);
+    setIsCorrect(null);
+  };
+
   const canCheck = selectedWords.length > 0;
 
   return (
@@ -350,10 +368,16 @@ export default function Lesson() {
             >
               ×
             </button>
-            <div className="flex-1 h-4 bg-gray-700 rounded-full overflow-hidden">
+            <div className="flex-1 h-4 bg-gray-700 rounded-full overflow-hidden flex">
+              {/* Completed exercises (green) */}
               <div
                 className="h-full bg-duo-green transition-all duration-300"
-                style={{ width: `${progress}%` }}
+                style={{ width: `${(completedExerciseIds.size / totalExercises) * 100}%` }}
+              />
+              {/* Skipped exercises (orange) */}
+              <div
+                className="h-full bg-duo-orange transition-all duration-300"
+                style={{ width: `${(skippedExerciseIds.size / totalExercises) * 100}%` }}
               />
             </div>
             <div className="flex items-center gap-2">
@@ -474,7 +498,17 @@ export default function Lesson() {
         {/* Bottom action buttons */}
         <div className="bg-duo-dark border-t border-gray-700 p-6">
           <div className="max-w-4xl mx-auto flex justify-between items-center">
-            <div className="flex-1" />
+            {/* Skip button - only show when not showing feedback */}
+            {!showFeedback ? (
+              <button
+                onClick={handleSkip}
+                className="px-8 py-4 rounded-2xl font-bold text-lg transition-all bg-transparent border-2 border-gray-600 text-gray-400 hover:bg-gray-700 hover:text-white hover:border-gray-500"
+              >
+                {t("lesson.skip")}
+              </button>
+            ) : (
+              <div className="flex-1" />
+            )}
 
             {!showFeedback ? (
               <button

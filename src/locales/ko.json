@@ -35,7 +35,8 @@
     "correctAnswer": "정답:",
     "check": "확인",
     "continue": "계속",
-    "complete": "완료"
+    "complete": "완료",
+    "skip": "건너뛰기"
   },
   "learningPath": {
     "unit": "{{number}}단원",

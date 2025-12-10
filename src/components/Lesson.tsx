@@ -263,25 +263,37 @@ export default function Lesson() {
     if (fromBank) {
       // Add word to selected
       setSelectedWords([...selectedWords, word]);
-      setAvailableWords(
-        availableWords.filter(
-          (_, i) => i !== availableWords.findIndex((aw) => aw === word)
-        )
-      );
+      // Replace word with null placeholder in bank to maintain layout
+      const wordIndex = availableWords.findIndex((aw) => aw === word);
+      const newAvailable = [...availableWords];
+      newAvailable[wordIndex] = null as any;
+      setAvailableWords(newAvailable);
     } else {
-      // Remove word from selected, return to bank
+      // Replace word with null placeholder in answer area
       const indexToRemove = selectedWords.findIndex((w) => w === word);
       const newSelected = [...selectedWords];
-      newSelected.splice(indexToRemove, 1);
+      newSelected[indexToRemove] = null as any;
       setSelectedWords(newSelected);
-      setAvailableWords([...availableWords, word]);
+
+      // Put word back in its original position in bank
+      const firstNullIndex = availableWords.findIndex((w) => w === null);
+      if (firstNullIndex !== -1) {
+        const newAvailable = [...availableWords];
+        newAvailable[firstNullIndex] = word;
+        setAvailableWords(newAvailable);
+      } else {
+        // If no null slots, add to end
+        setAvailableWords([...availableWords, word]);
+      }
     }
   };
 
   const handleCheck = () => {
+    // Filter out null placeholders before checking
+    const actualWords = selectedWords.filter(w => w !== null);
     const isAnswerCorrect =
-      selectedWords.length === currentExercise.correctAnswer.length &&
-      selectedWords.every(
+      actualWords.length === currentExercise.correctAnswer.length &&
+      actualWords.every(
         (word, index) => word === currentExercise.correctAnswer[index]
       );
 
@@ -349,7 +361,7 @@ export default function Lesson() {
     setIsCorrect(null);
   };
 
-  const canCheck = selectedWords.length > 0;
+  const canCheck = selectedWords.filter(w => w !== null).length > 0;
 
   return (
     <DndContext
@@ -423,19 +435,32 @@ export default function Lesson() {
               className="mb-8 min-h-[120px] border-b-2 border-gray-700 pb-4 rounded-xl"
             >
               <SortableContext
-                items={selectedWords.map((word, index) => `selected-${word}-${index}`)}
+                items={selectedWords
+                  .map((word, index) => word !== null ? `selected-${word}-${index}` : null)
+                  .filter((id): id is string => id !== null)}
                 strategy={rectSortingStrategy}
               >
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3 content-start">
                   {selectedWords.map((word, index) => (
-                    <SortableWordButton
-                      key={`selected-${index}`}
-                      id={`selected-${word}-${index}`}
-                      word={word}
-                      onClick={() => handleWordClick(word, false)}
-                      showFeedback={showFeedback}
-                      isCorrect={isCorrect ?? false}
-                    />
+                    word === null ? (
+                      // Empty placeholder box to maintain layout
+                      <div
+                        key={`placeholder-${index}`}
+                        className="px-6 py-3 rounded-2xl border-2 border-dashed border-gray-700 bg-transparent"
+                      >
+                        {/* Empty placeholder */}
+                        <span className="opacity-0 text-lg font-bold">word</span>
+                      </div>
+                    ) : (
+                      <SortableWordButton
+                        key={`selected-${index}`}
+                        id={`selected-${word}-${index}`}
+                        word={word}
+                        onClick={() => handleWordClick(word, false)}
+                        showFeedback={showFeedback}
+                        isCorrect={isCorrect ?? false}
+                      />
+                    )
                   ))}
                 </div>
               </SortableContext>
@@ -445,13 +470,23 @@ export default function Lesson() {
             <DroppableArea id="bank-area" className="mb-8">
               <div className="flex flex-wrap gap-3 justify-center h-48 content-start">
                 {availableWords.map((word, index) => (
-                  <DraggableWordButton
-                    key={`available-${index}`}
-                    id={`bank-${word}-${index}`}
-                    word={word}
-                    onClick={() => handleWordClick(word, true)}
-                    disabled={showFeedback}
-                  />
+                  word === null ? (
+                    // Empty placeholder box to maintain layout
+                    <div
+                      key={`bank-placeholder-${index}`}
+                      className="px-6 py-3 rounded-2xl border-2 border-dashed border-gray-700 bg-transparent"
+                    >
+                      <span className="opacity-0 text-lg font-bold">word</span>
+                    </div>
+                  ) : (
+                    <DraggableWordButton
+                      key={`available-${index}`}
+                      id={`bank-${word}-${index}`}
+                      word={word}
+                      onClick={() => handleWordClick(word, true)}
+                      disabled={showFeedback}
+                    />
+                  )
                 ))}
               </div>
             </DroppableArea>

@@ -35,10 +35,10 @@ export const lessons: Record<string, Lesson> = {
       {
         id: 'ex-1-2',
         type: 'word-bank',
-        question: 'Import React in a component file',
-        correctAnswer: ['import', 'React', 'from', 'react'],
-        wordBank: ['import', 'React', 'from', 'react', 'require', 'export', 'default'],
-        hint: 'Use ES6 import syntax'
+        question: 'Create a component that displays a greeting',
+        correctAnswer: ['function', 'Greeting', '()', '{', 'return', '<h1>', 'Welcome!', '</h1>', '}'],
+        wordBank: ['function', 'Greeting', '()', '{', 'return', '<h1>', 'Welcome!', '</h1>', '}', 'class', 'render', 'const'],
+        hint: 'Function components return JSX'
       },
       {
         id: 'ex-1-3',
@@ -132,10 +132,10 @@ export const lessons: Record<string, Lesson> = {
       {
         id: 'ex-4-1',
         type: 'word-bank',
-        question: 'Import useState hook',
-        correctAnswer: ['import', '{', 'useState', '}', 'from', 'react'],
-        wordBank: ['import', '{', 'useState', '}', 'from', 'react', 'React', 'default'],
-        hint: 'Named import from react'
+        question: 'Initialize state with a default value',
+        correctAnswer: ['const', '[isOpen,', 'setIsOpen]', '=', 'useState(false)'],
+        wordBank: ['const', '[isOpen,', 'setIsOpen]', '=', 'useState(false)', 'useState(true)', 'let', 'var'],
+        hint: 'useState returns array with state and setter'
       },
       {
         id: 'ex-4-2',
@@ -180,10 +180,10 @@ export const lessons: Record<string, Lesson> = {
       {
         id: 'ex-6-1',
         type: 'word-bank',
-        question: 'Import useEffect hook',
-        correctAnswer: ['import', '{', 'useState,', 'useEffect', '}', 'from', 'react'],
-        wordBank: ['import', '{', 'useState,', 'useEffect', '}', 'from', 'react', 'useeffect', 'effect'],
-        hint: 'Named import alongside useState'
+        question: 'Run effect when dependency changes',
+        correctAnswer: ['useEffect(()=>{', 'updateTitle()', '},', '[count]', ')'],
+        wordBank: ['useEffect(()=>{', 'updateTitle()', '},', '[count]', ')', '[]', 'useEffect', '[data]'],
+        hint: 'Effect runs when count changes'
       },
       {
         id: 'ex-6-2',
@@ -208,6 +208,14 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['{isLoggedIn', '?', '<Dashboard/>', ':', '<Login/>}'],
         wordBank: ['{isLoggedIn', '?', '<Dashboard/>', ':', '<Login/>}', 'if', 'else', '&&'],
         hint: 'Use ternary for if-else in JSX'
+      },
+      {
+        id: 'ex-7-2',
+        type: 'word-bank',
+        question: 'Conditionally render with logical AND',
+        correctAnswer: ['{hasError', '&&', '<ErrorMessage/>}'],
+        wordBank: ['{hasError', '&&', '<ErrorMessage/>}', '?', ':', 'if', '||'],
+        hint: 'Use && to render only when condition is true'
       }
     ]
   },
@@ -224,6 +232,14 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['{items.map(item', '=>', '<li', 'key={item.id}', '>{item.name}</li>)}'],
         wordBank: ['{items.map(item', '=>', '<li', 'key={item.id}', '>{item.name}</li>)}', 'key=', 'id=', 'forEach'],
         hint: 'Always add key prop to list items'
+      },
+      {
+        id: 'ex-8-2',
+        type: 'word-bank',
+        question: 'Filter and map an array',
+        correctAnswer: ['{users.filter(u', '=>', 'u.active).map(u', '=>', '<User', 'key={u.id}', '/>)}'],
+        wordBank: ['{users.filter(u', '=>', 'u.active).map(u', '=>', '<User', 'key={u.id}', '/>)}', 'forEach', 'if', 'id='],
+        hint: 'Chain filter and map for conditional lists'
       }
     ]
   },
@@ -240,6 +256,14 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['<input', 'value={name}', 'onChange={handleChange}', '/>'],
         wordBank: ['<input', 'value={name}', 'onChange={handleChange}', '/>', 'onchange=', 'defaultValue='],
         hint: 'Use value and onChange for controlled inputs'
+      },
+      {
+        id: 'ex-9-2',
+        type: 'word-bank',
+        question: 'Handle form submission',
+        correctAnswer: ['<form', 'onSubmit={handleSubmit}', '>', '<button', 'type=', '"submit"', '>', 'Submit', '</button>', '</form>'],
+        wordBank: ['<form', 'onSubmit={handleSubmit}', '>', '<button', 'type=', '"submit"', '>', 'Submit', '</button>', '</form>', 'onClick=', 'onsubmit='],
+        hint: 'Use onSubmit on form element'
       }
     ]
   },
@@ -256,6 +280,14 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['<Child', 'value={count}', 'onChange={setCount}', '/>'],
         wordBank: ['<Child', 'value={count}', 'onChange={setCount}', '/>', 'state=', 'setState='],
         hint: 'Pass both value and setter to child'
+      },
+      {
+        id: 'ex-10-2',
+        type: 'word-bank',
+        question: 'Define parent component with shared state',
+        correctAnswer: ['const', '[text,', 'setText]', '=', 'useState(', '""', ')'],
+        wordBank: ['const', '[text,', 'setText]', '=', 'useState(', '""', ')', 'null', 'undefined', 'let'],
+        hint: 'Initialize state in parent to share with children'
       }
     ]
   },
@@ -296,6 +328,14 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['function', 'useLocalStorage(key)', '{', 'return', '[value,', 'setValue]', '}'],
         wordBank: ['function', 'useLocalStorage(key)', '{', 'return', '[value,', 'setValue]', '}', 'const', 'hook'],
         hint: 'Custom hooks must start with "use"'
+      },
+      {
+        id: 'ex-12-2',
+        type: 'word-bank',
+        question: 'Use custom hook in component',
+        correctAnswer: ['const', '[data,', 'setData]', '=', 'useLocalStorage(', '"key"', ')'],
+        wordBank: ['const', '[data,', 'setData]', '=', 'useLocalStorage(', '"key"', ')', 'useState', 'useEffect'],
+        hint: 'Custom hooks work like built-in hooks'
       }
     ]
   },
@@ -312,6 +352,14 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['const', '[state,', 'dispatch]', '=', 'useReducer(reducer,', 'initialState)'],
         wordBank: ['const', '[state,', 'dispatch]', '=', 'useReducer(reducer,', 'initialState)', 'useState', 'reducer'],
         hint: 'useReducer takes reducer function and initial state'
+      },
+      {
+        id: 'ex-13-2',
+        type: 'word-bank',
+        question: 'Dispatch an action',
+        correctAnswer: ['dispatch({', 'type:', '"INCREMENT",', 'payload:', '1', '})'],
+        wordBank: ['dispatch({', 'type:', '"INCREMENT",', 'payload:', '1', '})', 'setState', 'action'],
+        hint: 'Dispatch objects with type and payload'
       }
     ]
   },
@@ -328,6 +376,14 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['const', 'result', '=', 'useMemo(()=>', 'expensiveCalc(a,b),', '[a,b])'],
         wordBank: ['const', 'result', '=', 'useMemo(()=>', 'expensiveCalc(a,b),', '[a,b])', 'memo', 'useEffect'],
         hint: 'useMemo caches value until dependencies change'
+      },
+      {
+        id: 'ex-14-2',
+        type: 'word-bank',
+        question: 'Memoize filtered list',
+        correctAnswer: ['const', 'filtered', '=', 'useMemo(()=>', 'items.filter(filterFn),', '[items,', 'filterFn])'],
+        wordBank: ['const', 'filtered', '=', 'useMemo(()=>', 'items.filter(filterFn),', '[items,', 'filterFn])', '[]', 'useEffect'],
+        hint: 'Avoid re-filtering on every render'
       }
     ]
   },
@@ -344,6 +400,14 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['const', 'handleClick', '=', 'useCallback(()=>{', 'doSomething()', '},', '[dependency])'],
         wordBank: ['const', 'handleClick', '=', 'useCallback(()=>{', 'doSomething()', '},', '[dependency])', 'useMemo', '[]'],
         hint: 'useCallback prevents function recreation on every render'
+      },
+      {
+        id: 'ex-15-2',
+        type: 'word-bank',
+        question: 'Pass memoized callback to child',
+        correctAnswer: ['<Button', 'onClick={memoizedHandler}', '/>'],
+        wordBank: ['<Button', 'onClick={memoizedHandler}', '/>', 'onClick={()=>handler()}', 'handler=', 'function='],
+        hint: 'Prevents child re-renders when parent re-renders'
       }
     ]
   }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -23,6 +23,15 @@ import { CSS } from "@dnd-kit/utilities";
 import { lessons } from "../data/lessons";
 import { useStore } from "../store/useStore";
 
+// Monospace font helper for code words
+function getMonospaceWord(word: string) {
+  return (
+    <span style={{ fontFamily: "monospace", fontSize: "16px" }}>
+      {word}
+    </span>
+  );
+}
+
 interface WordButtonProps {
   word: string;
   id: string;
@@ -42,7 +51,7 @@ function SortableWordButton({
   disabled,
   showFeedback,
   isCorrect,
-}: Omit<WordButtonProps, 'fromBank' | 'isSortable'>) {
+}: Omit<WordButtonProps, "fromBank" | "isSortable">) {
   const {
     attributes,
     listeners,
@@ -55,14 +64,14 @@ function SortableWordButton({
     disabled: disabled || showFeedback,
     transition: {
       duration: 250,
-      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+      easing: "cubic-bezier(0.25, 1, 0.5, 1)",
     },
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: transition || 'transform 250ms cubic-bezier(0.25, 1, 0.5, 1)',
-    zIndex: isDragging ? 1000 : 'auto',
+    transition: transition || "transform 250ms cubic-bezier(0.25, 1, 0.5, 1)",
+    zIndex: isDragging ? 1000 : "auto",
   };
 
   return (
@@ -87,7 +96,7 @@ function SortableWordButton({
           : "cursor-grab active:cursor-grabbing"
       }`}
     >
-      {word}
+      {getMonospaceWord(word)}
     </button>
   );
 }
@@ -98,12 +107,27 @@ function DraggableWordButton({
   id,
   onClick,
   disabled,
-}: Pick<WordButtonProps, 'word' | 'id' | 'onClick' | 'disabled'>) {
+  onMeasure,
+}: Pick<WordButtonProps, "word" | "id" | "onClick" | "disabled"> & {
+  onMeasure?: (width: number) => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id,
       disabled,
     });
+
+  const measureRef = (node: HTMLButtonElement | null) => {
+    setNodeRef(node);
+    if (node && onMeasure) {
+      // Measure width immediately when ref is set
+      const width = node.offsetWidth;
+      console.log(`Measured width: ${width} for word: ${word}`);
+      if (width > 0) {
+        onMeasure(width);
+      }
+    }
+  };
 
   const style = transform
     ? {
@@ -114,7 +138,7 @@ function DraggableWordButton({
 
   return (
     <button
-      ref={setNodeRef}
+      ref={measureRef}
       style={style}
       {...listeners}
       {...attributes}
@@ -123,10 +147,12 @@ function DraggableWordButton({
       className={`px-6 py-3 rounded-2xl font-bold text-lg transition-all ${
         isDragging ? "opacity-50 scale-105" : ""
       } bg-gray-800 hover:bg-gray-700 text-white border-2 border-gray-700 hover:border-gray-600 hover:scale-105 active:scale-95 ${
-        disabled ? "opacity-50 cursor-not-allowed" : "cursor-grab active:cursor-grabbing"
+        disabled
+          ? "opacity-50 cursor-not-allowed"
+          : "cursor-grab active:cursor-grabbing"
       }`}
     >
-      {word}
+      {getMonospaceWord(word)}
     </button>
   );
 }
@@ -162,16 +188,24 @@ export default function Lesson() {
 
   // Initialize exercise queue with all exercise IDs
   const [exerciseQueue, setExerciseQueue] = useState<string[]>(
-    lesson?.exercises.map(ex => ex.id) || []
+    lesson?.exercises.map((ex) => ex.id) || []
   );
-  const [completedExerciseIds, setCompletedExerciseIds] = useState<Set<string>>(new Set());
-  const [skippedExerciseIds, setSkippedExerciseIds] = useState<Set<string>>(new Set());
+  const [completedExerciseIds, setCompletedExerciseIds] = useState<Set<string>>(
+    new Set()
+  );
+  const [skippedExerciseIds, setSkippedExerciseIds] = useState<Set<string>>(
+    new Set()
+  );
   const [hearts, setHearts] = useState(3);
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
-  const [availableWords, setAvailableWords] = useState<string[]>([]);
+  const [availableWords, setAvailableWords] = useState<(string | null)[]>([]);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const wordWidthsRef = useRef<Map<number, number>>(new Map());
+  const originalPositionsRef = useRef<Map<string, number>>(new Map()); // Track original index for each word
+  const selectedWordOriginsRef = useRef<Map<string, number>>(new Map()); // Track which bank index each selected word came from (key: word, value: bank index)
+  const [wordWidths, setWordWidths] = useState<Map<number, number>>(new Map());
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -182,20 +216,30 @@ export default function Lesson() {
   );
 
   const currentExerciseId = exerciseQueue[0];
-  const currentExercise = lesson?.exercises.find(ex => ex.id === currentExerciseId);
+  const currentExercise = lesson?.exercises.find(
+    (ex) => ex.id === currentExerciseId
+  );
   const totalExercises = lesson?.exercises.length || 0;
 
   // Reset state when exercise changes
   useEffect(() => {
     if (currentExercise) {
       // Shuffle word bank for each exercise
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setAvailableWords(
-        [...currentExercise.wordBank].sort(() => Math.random() - 0.5)
-      );
+      const shuffled = [...currentExercise.wordBank].sort(() => Math.random() - 0.5);
+      setAvailableWords(shuffled);
+
+      // Store original positions for each word (word-index key)
+      originalPositionsRef.current = new Map();
+      shuffled.forEach((word, index) => {
+        originalPositionsRef.current.set(`${word}-${index}`, index);
+      });
+
       setSelectedWords([]);
       setIsCorrect(null);
       setShowFeedback(false);
+      wordWidthsRef.current = new Map();
+      selectedWordOriginsRef.current = new Map();
+      setWordWidths(new Map()); // Reset measured widths for new exercise
     }
   }, [currentExercise]);
 
@@ -257,31 +301,60 @@ export default function Lesson() {
     }
   };
 
-  const handleWordClick = (word: string, fromBank: boolean) => {
+  const handleWordClick = (word: string, fromBank: boolean, selectedIndex?: number, bankIndex?: number) => {
     if (showFeedback) return; // Don't allow changes after checking
 
     if (fromBank) {
-      // Add word to selected
+      // Moving from bank to answer
+      const foundBankIndex = bankIndex !== undefined ? bankIndex : availableWords.findIndex((aw) => aw === word);
+
+      // Store which bank position this word came from, keyed by its future position in selectedWords
+      const futureSelectedIndex = selectedWords.length;
+      selectedWordOriginsRef.current.set(futureSelectedIndex, foundBankIndex);
+
       setSelectedWords([...selectedWords, word]);
+
       // Replace word with null placeholder in bank to maintain layout
-      const wordIndex = availableWords.findIndex((aw) => aw === word);
       const newAvailable = [...availableWords];
-      newAvailable[wordIndex] = null as any;
+      newAvailable[foundBankIndex] = null;
       setAvailableWords(newAvailable);
     } else {
+      // Moving from answer back to bank
       // Remove word from answer area (no placeholder in answer section)
-      const newSelected = selectedWords.filter((w) => w !== word);
+      const newSelected = [...selectedWords];
+      newSelected.splice(selectedIndex!, 1);
       setSelectedWords(newSelected);
 
+      // Get the original bank position for this selected word
+      const originalBankIndex = selectedWordOriginsRef.current.get(selectedIndex!);
+
+      // Clean up the tracking map and shift down indices for words after this one
+      selectedWordOriginsRef.current.delete(selectedIndex!);
+      const updatedMap = new Map<number, number>();
+      selectedWordOriginsRef.current.forEach((bankIdx, selIdx) => {
+        if (selIdx > selectedIndex!) {
+          updatedMap.set(selIdx - 1, bankIdx); // Shift down by 1
+        } else {
+          updatedMap.set(selIdx, bankIdx);
+        }
+      });
+      selectedWordOriginsRef.current = updatedMap;
+
       // Put word back in its original position in bank
-      const firstNullIndex = availableWords.findIndex((w) => w === null);
-      if (firstNullIndex !== -1) {
+      if (originalBankIndex !== undefined) {
         const newAvailable = [...availableWords];
-        newAvailable[firstNullIndex] = word;
+        newAvailable[originalBankIndex] = word;
         setAvailableWords(newAvailable);
       } else {
-        // If no null slots, add to end
-        setAvailableWords([...availableWords, word]);
+        // Fallback: Put in first null slot or add to end
+        const firstNullIndex = availableWords.findIndex((w) => w === null);
+        if (firstNullIndex !== -1) {
+          const newAvailable = [...availableWords];
+          newAvailable[firstNullIndex] = word;
+          setAvailableWords(newAvailable);
+        } else {
+          setAvailableWords([...availableWords, word]);
+        }
       }
     }
   };
@@ -300,9 +373,9 @@ export default function Lesson() {
   const handleContinue = () => {
     if (isCorrect) {
       // Mark exercise as completed
-      setCompletedExerciseIds(prev => new Set([...prev, currentExerciseId]));
+      setCompletedExerciseIds((prev) => new Set([...prev, currentExerciseId]));
       // Remove from skipped if it was there
-      setSkippedExerciseIds(prev => {
+      setSkippedExerciseIds((prev) => {
         const newSet = new Set([...prev]);
         newSet.delete(currentExerciseId);
         return newSet;
@@ -324,7 +397,7 @@ export default function Lesson() {
       }
     } else {
       // Wrong answer - subtract a heart
-      setHearts(prev => Math.max(0, prev - 1));
+      setHearts((prev) => Math.max(0, prev - 1));
 
       // Move current exercise to end of queue
       const newQueue = [...exerciseQueue.slice(1), currentExerciseId];
@@ -345,7 +418,7 @@ export default function Lesson() {
 
   const handleSkip = () => {
     // Mark exercise as skipped
-    setSkippedExerciseIds(prev => new Set([...prev, currentExerciseId]));
+    setSkippedExerciseIds((prev) => new Set([...prev, currentExerciseId]));
 
     // Move current exercise to end of queue
     const newQueue = [...exerciseQueue.slice(1), currentExerciseId];
@@ -380,17 +453,25 @@ export default function Lesson() {
               {/* Completed exercises (green) */}
               <div
                 className="h-full bg-duo-green transition-all duration-300"
-                style={{ width: `${(completedExerciseIds.size / totalExercises) * 100}%` }}
+                style={{
+                  width: `${
+                    (completedExerciseIds.size / totalExercises) * 100
+                  }%`,
+                }}
               />
               {/* Skipped exercises (orange) */}
               <div
                 className="h-full bg-duo-orange transition-all duration-300"
-                style={{ width: `${(skippedExerciseIds.size / totalExercises) * 100}%` }}
+                style={{
+                  width: `${(skippedExerciseIds.size / totalExercises) * 100}%`,
+                }}
               />
             </div>
             <div className="flex items-center gap-2">
               {Array.from({ length: hearts }).map((_, i) => (
-                <span key={i} className="text-duo-green text-xl">❤️</span>
+                <span key={i} className="text-duo-green text-xl">
+                  ❤️
+                </span>
               ))}
             </div>
           </div>
@@ -404,7 +485,9 @@ export default function Lesson() {
               <div className="w-10 h-10 bg-linear-to-br from-pink-400 to-pink-500 rounded-full flex items-center justify-center">
                 <span className="text-xl">✨</span>
               </div>
-              <span className="text-white text-lg font-bold">{t("lesson.newWord")}</span>
+              <span className="text-white text-lg font-bold">
+                {t("lesson.newWord")}
+              </span>
             </div>
 
             {/* Question */}
@@ -431,7 +514,9 @@ export default function Lesson() {
               className="mb-8 min-h-[120px] border-b-2 border-gray-700 pb-4 rounded-xl"
             >
               <SortableContext
-                items={selectedWords.map((word, index) => `selected-${word}-${index}`)}
+                items={selectedWords.map(
+                  (word, index) => `selected-${word}-${index}`
+                )}
                 strategy={rectSortingStrategy}
               >
                 <div className="flex flex-wrap gap-3 content-start">
@@ -440,7 +525,7 @@ export default function Lesson() {
                       key={`selected-${index}`}
                       id={`selected-${word}-${index}`}
                       word={word}
-                      onClick={() => handleWordClick(word, false)}
+                      onClick={() => handleWordClick(word, false, index)}
                       showFeedback={showFeedback}
                       isCorrect={isCorrect ?? false}
                     />
@@ -452,12 +537,16 @@ export default function Lesson() {
             {/* Word bank */}
             <DroppableArea id="bank-area" className="mb-8">
               <div className="flex flex-wrap gap-3 justify-center h-48 content-start">
-                {availableWords.map((word, index) => (
+                {availableWords.map((word, index) =>
                   word === null ? (
-                    // Empty placeholder box to maintain layout
+                    // Empty placeholder box to maintain layout with measured width
                     <div
                       key={`bank-placeholder-${index}`}
                       className="px-6 py-3 rounded-2xl border-2 border-dashed border-gray-700 bg-transparent"
+                      style={{
+                        width: wordWidths.has(index) ? `${wordWidths.get(index)}px` : "auto",
+                        minWidth: wordWidths.has(index) ? `${wordWidths.get(index)}px` : undefined,
+                      }}
                     >
                       <span className="opacity-0 text-lg font-bold">word</span>
                     </div>
@@ -466,11 +555,19 @@ export default function Lesson() {
                       key={`available-${index}`}
                       id={`bank-${word}-${index}`}
                       word={word}
-                      onClick={() => handleWordClick(word, true)}
+                      onClick={() => handleWordClick(word, true, undefined, index)}
                       disabled={showFeedback}
+                      onMeasure={(width) => {
+                        // Only store width if not already measured
+                        if (!wordWidthsRef.current.has(index)) {
+                          wordWidthsRef.current.set(index, width);
+                          // Update state to trigger re-render with new widths
+                          setWordWidths(new Map(wordWidthsRef.current));
+                        }
+                      }}
                     />
                   )
-                ))}
+                )}
               </div>
             </DroppableArea>
 
@@ -503,7 +600,13 @@ export default function Lesson() {
                     {!isCorrect && (
                       <p className="text-white">
                         {t("lesson.correctAnswer")}{" "}
-                        {currentExercise.correctAnswer.join(" ")}
+                        <span className="inline-flex gap-1">
+                          {currentExercise.correctAnswer.map((word, idx) => (
+                            <span key={idx}>
+                              {getMonospaceWord(word)}
+                            </span>
+                          ))}
+                        </span>
                       </p>
                     )}
                   </div>
@@ -563,7 +666,7 @@ export default function Lesson() {
       <DragOverlay>
         {activeId ? (
           <div className="px-6 py-3 bg-gray-700 text-white rounded-2xl font-bold text-lg shadow-2xl scale-110 cursor-grabbing">
-            {activeId.split("-")[1]}
+            {getMonospaceWord(activeId.split("-")[1])}
           </div>
         ) : null}
       </DragOverlay>

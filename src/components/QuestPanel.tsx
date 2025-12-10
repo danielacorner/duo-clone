@@ -1,6 +1,6 @@
-import { useStore } from '../store/useStore';
-import { useTranslation } from 'react-i18next';
-import AccountMenu from './AccountMenu';
+import { useStore } from "../store/useStore";
+import { useTranslation } from "react-i18next";
+import AccountMenu from "./AccountMenu";
 
 export default function QuestPanel() {
   const { user, quests } = useStore();
@@ -47,9 +47,7 @@ export default function QuestPanel() {
             <p className="text-gray-300 text-sm mb-1">
               {t("league.currentRank", { rank: 19 })}
             </p>
-            <p className="text-gray-400 text-xs">
-              {t("league.safeZone")}
-            </p>
+            <p className="text-gray-400 text-xs">{t("league.safeZone")}</p>
           </div>
         </div>
       </div>
@@ -97,17 +95,31 @@ export default function QuestPanel() {
       </div>
 
       {/* Footer Navigation */}
-      <div className="flex justify-around mt-6 border-t border-gray-700 pt-4">
-        <button className="text-gray-400 text-xs hover:text-white">{t("footer.about")}</button>
-        <button className="text-gray-400 text-xs hover:text-white">{t("footer.store")}</button>
-        <button className="text-gray-400 text-xs hover:text-white">{t("footer.effectiveness")}</button>
-        <button className="text-gray-400 text-xs hover:text-white">{t("footer.careers")}</button>
-        <button className="text-gray-400 text-xs hover:text-white">{t("footer.investors")}</button>
-        <button className="text-gray-400 text-xs hover:text-white">{t("footer.terms")}</button>
+      <div className="flex justify-around mt-6 border-t border-gray-700 pt-4 gap-2 flex-wrap justify-center">
+        <button className="text-gray-400 text-xs hover:text-white">
+          {t("footer.about")}
+        </button>
+        <button className="text-gray-400 text-xs hover:text-white">
+          {t("footer.store")}
+        </button>
+        <button className="text-gray-400 text-xs hover:text-white">
+          {t("footer.effectiveness")}
+        </button>
+        <button className="text-gray-400 text-xs hover:text-white">
+          {t("footer.careers")}
+        </button>
+        <button className="text-gray-400 text-xs hover:text-white">
+          {t("footer.investors")}
+        </button>
+        <button className="text-gray-400 text-xs hover:text-white">
+          {t("footer.terms")}
+        </button>
       </div>
 
       <div className="text-center mt-2">
-        <button className="text-gray-500 text-xs hover:text-gray-300">{t("footer.privacy")}</button>
+        <button className="text-gray-500 text-xs hover:text-gray-300">
+          {t("footer.privacy")}
+        </button>
       </div>
     </div>
   );

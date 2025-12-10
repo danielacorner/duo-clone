@@ -265,7 +265,7 @@ export default function Lesson() {
       setSelectedWords([...selectedWords, word]);
       setAvailableWords(
         availableWords.filter(
-          (w, i) => i !== availableWords.findIndex((aw) => aw === word)
+          (_, i) => i !== availableWords.findIndex((aw) => aw === word)
         )
       );
     } else {
@@ -443,7 +443,7 @@ export default function Lesson() {
 
             {/* Word bank */}
             <DroppableArea id="bank-area" className="mb-8">
-              <div className="flex flex-wrap gap-3 justify-center">
+              <div className="flex flex-wrap gap-3 justify-center h-48 content-start">
                 {availableWords.map((word, index) => (
                   <DraggableWordButton
                     key={`available-${index}`}

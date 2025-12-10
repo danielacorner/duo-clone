@@ -157,7 +157,13 @@ export default function Lesson() {
   const { updateXP, completeLesson } = useStore();
 
   const lesson = lessonId ? lessons[lessonId] : null;
-  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
+
+  // Initialize exercise queue with all exercise IDs
+  const [exerciseQueue, setExerciseQueue] = useState<string[]>(
+    lesson?.exercises.map(ex => ex.id) || []
+  );
+  const [completedExerciseIds, setCompletedExerciseIds] = useState<Set<string>>(new Set());
+  const [hearts, setHearts] = useState(3);
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
   const [availableWords, setAvailableWords] = useState<string[]>([]);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
@@ -172,9 +178,11 @@ export default function Lesson() {
     })
   );
 
-  const currentExercise = lesson?.exercises[currentExerciseIndex];
-  const progress = lesson
-    ? ((currentExerciseIndex + 1) / lesson.exercises.length) * 100
+  const currentExerciseId = exerciseQueue[0];
+  const currentExercise = lesson?.exercises.find(ex => ex.id === currentExerciseId);
+  const totalExercises = lesson?.exercises.length || 0;
+  const progress = totalExercises > 0
+    ? (completedExerciseIds.size / totalExercises) * 100
     : 0;
 
   // Reset state when exercise changes
@@ -283,26 +291,42 @@ export default function Lesson() {
 
   const handleContinue = () => {
     if (isCorrect) {
-      if (currentExerciseIndex < lesson.exercises.length - 1) {
-        // Move to next exercise
-        setCurrentExerciseIndex(currentExerciseIndex + 1);
-      } else {
-        // Lesson complete
-        updateXP(lesson.xpReward);
+      // Mark exercise as completed
+      setCompletedExerciseIds(prev => new Set([...prev, currentExerciseId]));
+
+      // Remove from queue
+      const newQueue = exerciseQueue.slice(1);
+      setExerciseQueue(newQueue);
+
+      // Check if all exercises are completed
+      if (completedExerciseIds.size + 1 >= totalExercises) {
+        // Lesson complete - award XP and navigate back
+        updateXP(lesson!.xpReward);
         if (lessonId) {
           completeLesson(lessonId);
         }
         navigate("/learn");
+        return;
       }
     } else {
-      // Try again - reset the exercise
-      setSelectedWords([]);
-      setAvailableWords(
-        [...currentExercise.wordBank].sort(() => Math.random() - 0.5)
-      );
-      setShowFeedback(false);
-      setIsCorrect(null);
+      // Wrong answer - subtract a heart
+      setHearts(prev => Math.max(0, prev - 1));
+
+      // Move current exercise to end of queue
+      const newQueue = [...exerciseQueue.slice(1), currentExerciseId];
+      setExerciseQueue(newQueue);
+
+      // Check if hearts depleted
+      if (hearts - 1 <= 0) {
+        // Game over - could navigate to a "try again" screen or back to learn
+        navigate("/learn");
+        return;
+      }
     }
+
+    // Reset feedback state for next exercise
+    setShowFeedback(false);
+    setIsCorrect(null);
   };
 
   const canCheck = selectedWords.length > 0;
@@ -331,9 +355,9 @@ export default function Lesson() {
               />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-duo-green text-xl">❤️</span>
-              <span className="text-duo-green text-xl">❤️</span>
-              <span className="text-duo-green text-xl">❤️</span>
+              {Array.from({ length: hearts }).map((_, i) => (
+                <span key={i} className="text-duo-green text-xl">❤️</span>
+              ))}
             </div>
           </div>
         </div>
@@ -472,10 +496,10 @@ export default function Lesson() {
                 } hover:scale-105`}
               >
                 {isCorrect
-                  ? currentExerciseIndex < lesson.exercises.length - 1
-                    ? "CONTINUE"
-                    : "COMPLETE"
-                  : "TRY AGAIN"}
+                  ? completedExerciseIds.size + 1 >= totalExercises
+                    ? "COMPLETE"
+                    : "CONTINUE"
+                  : "CONTINUE"}
               </button>
             )}
           </div>

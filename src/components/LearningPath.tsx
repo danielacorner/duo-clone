@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useStore } from "../store/useStore";
 import type { LessonNode as LessonNodeType } from "../types";
 import LessonModal from "./LessonModal";
@@ -116,6 +117,7 @@ function LessonNode({ node, onClick }: LessonNodeProps) {
 export default function LearningPath() {
   const { units } = useStore();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [selectedLesson, setSelectedLesson] = useState<string | null>(null);
 
   const handleNodeClick = (nodeId: string, status: string) => {
@@ -146,10 +148,10 @@ export default function LearningPath() {
             </button>
             <div className="text-left flex-1">
               <p className="text-white text-xs opacity-80 mb-1">
-                섹션 4, 유닛 11
+                {units[0]?.title || "Unit 1"}
               </p>
               <h1 className="text-white text-xl font-bold">
-                자기계발 조언하기
+                {units[0]?.description || "Learning Path"}
               </h1>
             </div>
             <button className="bg-white bg-opacity-20 hover:bg-opacity-30 p-3 rounded-xl transition-all">
@@ -160,7 +162,7 @@ export default function LearningPath() {
           <div className="w-full h-1 bg-gray-700 rounded-full mb-2 max-w-md mx-auto">
             <div className="h-full w-0 bg-linear-to-r from-pink-400 to-pink-500 rounded-full" />
           </div>
-          <p className="text-gray-500 text-sm mb-8">자기계발 조언하기</p>
+          <p className="text-gray-500 text-sm mb-8">{units[0]?.description || "Learning Path"}</p>
         </div>
 
         {/* Units */}
@@ -196,10 +198,10 @@ export default function LearningPath() {
                       <div className="w-40 h-32 flex items-center justify-center">
                         <div className="text-7xl transform rotate-12">🧑‍💼</div>
                       </div>
-                      {/* Speech bubble with "시작" */}
+                      {/* Speech bubble with "Start" */}
                       <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-gray-700 px-6 py-2 rounded-2xl shadow-lg">
                         <span className="text-white font-bold text-sm">
-                          시작
+                          {t("common.start")}
                         </span>
                         <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-gray-700"></div>
                       </div>

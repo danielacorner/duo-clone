@@ -1,0 +1,70 @@
+{
+  "home": {
+    "title": "Duo Clone에 오신 것을 환영합니다!",
+    "subtitle": "오늘부터 새로운 언어를 배워보세요",
+    "getStarted": "시작하기"
+  },
+  "nav": {
+    "learn": "학습",
+    "practice": "연습",
+    "leaderboard": "리더보드",
+    "shop": "상점",
+    "profile": "프로필",
+    "more": "더보기"
+  },
+  "league": {
+    "title": "자수정 리그",
+    "viewLeague": "리그 보기",
+    "currentRank": "현재 순위 {{rank}}위입니다",
+    "safeZone": "리그 강등 구간이 아닙니다 하락했습니다!"
+  },
+  "quests": {
+    "title": "오늘의 퀘스트",
+    "viewAll": "모두 보기",
+    "earnXP": "{{amount}} XP 획득하기",
+    "earnGoldXP": "골드 보너스 XP {{amount}}개 획득하기",
+    "completeLesson": "{{count}}개 레슨 완료하기",
+    "completeLesson_other": "{{count}}개 레슨 완료하기",
+    "progress": "{{current}} / {{total}}"
+  },
+  "lesson": {
+    "newWord": "새로운 단어",
+    "hint": "힌트:",
+    "excellent": "훌륭해요!",
+    "notQuite": "아쉬워요!",
+    "correctAnswer": "정답:",
+    "check": "확인",
+    "continue": "계속",
+    "complete": "완료"
+  },
+  "learningPath": {
+    "unit": "{{number}}단원",
+    "jumpHere": "여기로 이동하시겠습니까?",
+    "guidebook": "가이드북",
+    "lesson": "{{number}}번 레슨",
+    "practice": "연습",
+    "story": "스토리",
+    "unitReview": "단원 복습",
+    "chest": "보물 상자"
+  },
+  "accountMenu": {
+    "settings": "설정",
+    "profile": "프로필",
+    "help": "도움말",
+    "logout": "로그아웃",
+    "language": "언어",
+    "selectLanguage": "언어 선택"
+  },
+  "footer": {
+    "about": "정보",
+    "store": "스토어",
+    "effectiveness": "학습 효과",
+    "careers": "인재 채용",
+    "investors": "투자자",
+    "terms": "규정",
+    "privacy": "개인정보보호"
+  },
+  "common": {
+    "start": "시작"
+  }
+}

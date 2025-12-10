@@ -1,0 +1,70 @@
+{
+  "home": {
+    "title": "Bienvenue sur Duo Clone !",
+    "subtitle": "Commencez à apprendre une nouvelle langue aujourd'hui",
+    "getStarted": "Commencer"
+  },
+  "nav": {
+    "learn": "APPRENDRE",
+    "practice": "PRATIQUER",
+    "leaderboard": "CLASSEMENT",
+    "shop": "BOUTIQUE",
+    "profile": "PROFIL",
+    "more": "PLUS"
+  },
+  "league": {
+    "title": "Ligue Améthyste",
+    "viewLeague": "Voir la ligue",
+    "currentRank": "Classé {{rank}}e actuellement",
+    "safeZone": "Vous êtes à l'abri de la relégation !"
+  },
+  "quests": {
+    "title": "Quêtes quotidiennes",
+    "viewAll": "Voir tout",
+    "earnXP": "Gagner {{amount}} XP",
+    "earnGoldXP": "Gagner {{amount}} XP bonus or",
+    "completeLesson": "Terminer {{count}} leçon",
+    "completeLesson_other": "Terminer {{count}} leçons",
+    "progress": "{{current}} / {{total}}"
+  },
+  "lesson": {
+    "newWord": "NOUVEAU MOT",
+    "hint": "Indice :",
+    "excellent": "Excellent !",
+    "notQuite": "Pas tout à fait !",
+    "correctAnswer": "Réponse correcte :",
+    "check": "VÉRIFIER",
+    "continue": "CONTINUER",
+    "complete": "TERMINER"
+  },
+  "learningPath": {
+    "unit": "Unité {{number}}",
+    "jumpHere": "Sauter ici ?",
+    "guidebook": "Guide",
+    "lesson": "Leçon {{number}}",
+    "practice": "Pratique",
+    "story": "Histoire",
+    "unitReview": "Révision de l'unité",
+    "chest": "Coffre au trésor"
+  },
+  "accountMenu": {
+    "settings": "Paramètres",
+    "profile": "Profil",
+    "help": "Aide",
+    "logout": "Se déconnecter",
+    "language": "Langue",
+    "selectLanguage": "Sélectionner la langue"
+  },
+  "footer": {
+    "about": "À propos",
+    "store": "Boutique",
+    "effectiveness": "Efficacité",
+    "careers": "Carrières",
+    "investors": "Investisseurs",
+    "terms": "Conditions",
+    "privacy": "Confidentialité"
+  },
+  "common": {
+    "start": "Démarrer"
+  }
+}

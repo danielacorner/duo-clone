@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   DndContext,
   DragOverlay,
@@ -155,6 +156,7 @@ export default function Lesson() {
   const { lessonId } = useParams<{ lessonId: string }>();
   const navigate = useNavigate();
   const { updateXP, completeLesson } = useStore();
+  const { t } = useTranslation();
 
   const lesson = lessonId ? lessons[lessonId] : null;
 
@@ -370,7 +372,7 @@ export default function Lesson() {
               <div className="w-10 h-10 bg-linear-to-br from-pink-400 to-pink-500 rounded-full flex items-center justify-center">
                 <span className="text-xl">✨</span>
               </div>
-              <span className="text-white text-lg font-bold">NEW WORD</span>
+              <span className="text-white text-lg font-bold">{t("lesson.newWord")}</span>
             </div>
 
             {/* Question */}
@@ -433,7 +435,7 @@ export default function Lesson() {
             {/* Hint */}
             {currentExercise.hint && !showFeedback && (
               <div className="text-gray-400 text-sm italic mb-8">
-                💡 Hint: {currentExercise.hint}
+                💡 {t("lesson.hint")} {currentExercise.hint}
               </div>
             )}
 
@@ -454,11 +456,11 @@ export default function Lesson() {
                         isCorrect ? "text-green-400" : "text-red-400"
                       }`}
                     >
-                      {isCorrect ? "Excellent!" : "Not quite!"}
+                      {isCorrect ? t("lesson.excellent") : t("lesson.notQuite")}
                     </h3>
                     {!isCorrect && (
                       <p className="text-white">
-                        Correct answer:{" "}
+                        {t("lesson.correctAnswer")}{" "}
                         {currentExercise.correctAnswer.join(" ")}
                       </p>
                     )}
@@ -484,7 +486,7 @@ export default function Lesson() {
                     : "bg-gray-700 text-gray-500 cursor-not-allowed"
                 }`}
               >
-                CHECK
+                {t("lesson.check")}
               </button>
             ) : (
               <button
@@ -497,9 +499,9 @@ export default function Lesson() {
               >
                 {isCorrect
                   ? completedExerciseIds.size + 1 >= totalExercises
-                    ? "COMPLETE"
-                    : "CONTINUE"
-                  : "CONTINUE"}
+                    ? t("lesson.complete")
+                    : t("lesson.continue")
+                  : t("lesson.continue")}
               </button>
             )}
           </div>

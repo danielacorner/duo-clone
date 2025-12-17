@@ -1,0 +1,102 @@
+{
+  "home": {
+    "title": "Welcome to Duo Clone!",
+    "subtitle": "Start learning a new language today",
+    "getStarted": "Get Started"
+  },
+  "nav": {
+    "learn": "LEARN",
+    "practice": "PRACTICE",
+    "leaderboard": "LEADERBOARD",
+    "shop": "SHOP",
+    "profile": "PROFILE",
+    "more": "MORE"
+  },
+  "league": {
+    "title": "Amethyst League",
+    "viewLeague": "View League",
+    "currentRank": "Currently ranked {{rank}}",
+    "safeZone": "You're safe from relegation!"
+  },
+  "quests": {
+    "title": "Daily Quests",
+    "viewAll": "View All",
+    "earnXP": "Earn {{amount}} XP",
+    "earnComboXP": "Get combo bonus XP {{amount}} times",
+    "scoreInLessons": "Get {{percent}}% or higher in {{count}} lessons",
+    "progress": "{{current}} / {{total}}"
+  },
+  "lesson": {
+    "newWord": "NEW WORD",
+    "hint": "Hint:",
+    "excellent": "Excellent!",
+    "notQuite": "Not quite!",
+    "correctAnswer": "Correct answer:",
+    "check": "CHECK",
+    "continue": "CONTINUE",
+    "complete": "COMPLETE",
+    "skip": "SKIP"
+  },
+  "learningPath": {
+    "unit": "Unit {{number}}",
+    "jumpHere": "Jump here?",
+    "guidebook": "Guidebook",
+    "lesson": "Lesson {{number}}",
+    "practice": "Practice",
+    "story": "Story",
+    "unitReview": "Unit Review",
+    "chest": "Treasure Chest"
+  },
+  "accountMenu": {
+    "settings": "Settings",
+    "profile": "Profile",
+    "help": "Help",
+    "logout": "Log out",
+    "language": "Language",
+    "selectLanguage": "Select language"
+  },
+  "footer": {
+    "about": "About",
+    "store": "Store",
+    "effectiveness": "Effectiveness",
+    "careers": "Careers",
+    "investors": "Investors",
+    "terms": "Terms",
+    "privacy": "Privacy"
+  },
+  "common": {
+    "start": "Start"
+  },
+  "units": {
+    "unit1": {
+      "title": "Unit 1",
+      "description": "Self-Improvement Advice"
+    },
+    "unit2": {
+      "title": "Unit 2",
+      "description": "Basic Conversation"
+    },
+    "unit3": {
+      "title": "Unit 3",
+      "description": "Ordering Food"
+    },
+    "unit4": {
+      "title": "Unit 4",
+      "description": "Discussing Work Projects"
+    },
+    "unit5": {
+      "title": "Unit 5",
+      "description": "Advanced React Patterns"
+    },
+    "unit6": {
+      "title": "Unit 6",
+      "description": "State Management"
+    },
+    "unit7": {
+      "title": "Unit 7",
+      "description": "Performance Optimization"
+    },
+    "lesson": "Lesson {{number}}",
+    "practice": "Practice"
+  }
+}

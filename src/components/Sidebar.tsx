@@ -1,11 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import type { ReactElement } from "react";
 
 interface NavItem {
   id: string;
   icon: ReactElement;
   path: string;
-  label: string;
+  labelKey: string;
   bgColor: string;
 }
 
@@ -18,14 +19,14 @@ const navItems: NavItem[] = [
       </svg>
     ),
     path: "/",
-    label: "Home",
+    labelKey: "nav.learn",
     bgColor: "bg-orange-500",
   },
   {
     id: "learn",
     icon: <span className="text-4xl font-bold">あ</span>,
     path: "/learn",
-    label: "Learn",
+    labelKey: "nav.learn",
     bgColor: "bg-blue-500",
   },
   {
@@ -36,7 +37,7 @@ const navItems: NavItem[] = [
       </svg>
     ),
     path: "/practice",
-    label: "Practice",
+    labelKey: "nav.practice",
     bgColor: "bg-blue-400",
   },
   {
@@ -47,7 +48,7 @@ const navItems: NavItem[] = [
       </svg>
     ),
     path: "/leaderboard",
-    label: "Leaderboard",
+    labelKey: "nav.leaderboard",
     bgColor: "bg-yellow-500",
   },
   {
@@ -58,7 +59,7 @@ const navItems: NavItem[] = [
       </svg>
     ),
     path: "/shop",
-    label: "Shop",
+    labelKey: "nav.shop",
     bgColor: "bg-red-500",
   },
   {
@@ -70,20 +71,21 @@ const navItems: NavItem[] = [
       </svg>
     ),
     path: "/profile",
-    label: "Profile",
+    labelKey: "nav.profile",
     bgColor: "bg-amber-600",
   },
   {
     id: "more",
     icon: <span className="text-4xl">⋯</span>,
     path: "/more",
-    label: "More",
+    labelKey: "nav.more",
     bgColor: "bg-purple-500",
   },
 ];
 
 export default function Sidebar() {
   const location = useLocation();
+  const { t } = useTranslation();
 
   return (
     <div className="sidebar fixed left-0 top-0 h-screen w-20 bg-[#131F24] flex flex-col items-center py-5 gap-3 border-r border-gray-800">
@@ -104,7 +106,7 @@ export default function Sidebar() {
             className={`relative w-16 h-16 rounded-2xl flex items-center justify-center text-white transition-all hover:scale-105 ${
               isActive ? item.bgColor : "bg-transparent hover:bg-gray-800"
             }`}
-            title={item.label}
+            title={t(item.labelKey)}
           >
             {isActive && (
               <div className="absolute inset-0 rounded-2xl border-[3px] border-blue-500" />

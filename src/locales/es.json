@@ -1,0 +1,102 @@
+{
+  "home": {
+    "title": "¡Bienvenido a Duo Clone!",
+    "subtitle": "Comienza a aprender un nuevo idioma hoy",
+    "getStarted": "Comenzar"
+  },
+  "nav": {
+    "learn": "APRENDER",
+    "practice": "PRACTICAR",
+    "leaderboard": "CLASIFICACIÓN",
+    "shop": "TIENDA",
+    "profile": "PERFIL",
+    "more": "MÁS"
+  },
+  "league": {
+    "title": "Liga Amatista",
+    "viewLeague": "Ver liga",
+    "currentRank": "Actualmente clasificado {{rank}}º",
+    "safeZone": "¡Estás a salvo del descenso!"
+  },
+  "quests": {
+    "title": "Misiones diarias",
+    "viewAll": "Ver todo",
+    "earnXP": "Ganar {{amount}} XP",
+    "earnComboXP": "Obtener bonus combo XP {{amount}} veces",
+    "scoreInLessons": "Obtener {{percent}}% o más en {{count}} lecciones",
+    "progress": "{{current}} / {{total}}"
+  },
+  "lesson": {
+    "newWord": "NUEVA PALABRA",
+    "hint": "Pista:",
+    "excellent": "¡Excelente!",
+    "notQuite": "¡No del todo!",
+    "correctAnswer": "Respuesta correcta:",
+    "check": "VERIFICAR",
+    "continue": "CONTINUAR",
+    "complete": "COMPLETAR",
+    "skip": "SALTAR"
+  },
+  "learningPath": {
+    "unit": "Unidad {{number}}",
+    "jumpHere": "¿Saltar aquí?",
+    "guidebook": "Guía",
+    "lesson": "Lección {{number}}",
+    "practice": "Práctica",
+    "story": "Historia",
+    "unitReview": "Revisión de unidad",
+    "chest": "Cofre del tesoro"
+  },
+  "accountMenu": {
+    "settings": "Configuración",
+    "profile": "Perfil",
+    "help": "Ayuda",
+    "logout": "Cerrar sesión",
+    "language": "Idioma",
+    "selectLanguage": "Seleccionar idioma"
+  },
+  "footer": {
+    "about": "Acerca de",
+    "store": "Tienda",
+    "effectiveness": "Efectividad",
+    "careers": "Empleo",
+    "investors": "Inversores",
+    "terms": "Términos",
+    "privacy": "Privacidad"
+  },
+  "common": {
+    "start": "Comenzar"
+  },
+  "units": {
+    "unit1": {
+      "title": "Unidad 1",
+      "description": "Consejos de desarrollo personal"
+    },
+    "unit2": {
+      "title": "Unidad 2",
+      "description": "Conversación básica"
+    },
+    "unit3": {
+      "title": "Unidad 3",
+      "description": "Pedir comida"
+    },
+    "unit4": {
+      "title": "Unidad 4",
+      "description": "Discutir proyectos de trabajo"
+    },
+    "unit5": {
+      "title": "Unidad 5",
+      "description": "Patrones avanzados de React"
+    },
+    "unit6": {
+      "title": "Unidad 6",
+      "description": "Gestión de estado"
+    },
+    "unit7": {
+      "title": "Unidad 7",
+      "description": "Optimización de rendimiento"
+    },
+    "lesson": "Lección {{number}}",
+    "practice": "Práctica"
+  }
+}

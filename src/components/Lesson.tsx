@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -22,13 +22,12 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { lessons } from "../data/lessons";
 import { useStore } from "../store/useStore";
+import { useLessonStore, useCurrentExercise } from "../store/useLessonStore";
 
 // Monospace font helper for code words
 function getMonospaceWord(word: string) {
   return (
-    <span style={{ fontFamily: "monospace", fontSize: "16px" }}>
-      {word}
-    </span>
+    <span style={{ fontFamily: "monospace", fontSize: "16px" }}>{word}</span>
   );
 }
 
@@ -184,29 +183,34 @@ export default function Lesson() {
   const { updateXP, completeLesson } = useStore();
   const { t } = useTranslation();
 
+  // Zustand store
+  const {
+    initializeLesson,
+    exerciseQueue,
+    completedExerciseIds,
+    skippedExerciseIds,
+    hearts,
+    selectedWords,
+    availableWords,
+    isCorrect,
+    showFeedback,
+    wordWidths,
+    selectWord,
+    checkAnswer,
+    continueToNextExercise,
+    skipExercise,
+    setActiveId: setActiveIdInStore,
+    reorderWords,
+    activeId,
+    initializeExercise,
+  } = useLessonStore();
+
+  const currentExercise = useCurrentExercise();
+  const currentExerciseId = exerciseQueue[0];
   const lesson = lessonId ? lessons[lessonId] : null;
+  const totalExercises = lesson?.exercises.length || 0;
 
-  // Initialize exercise queue with all exercise IDs
-  const [exerciseQueue, setExerciseQueue] = useState<string[]>(
-    lesson?.exercises.map((ex) => ex.id) || []
-  );
-  const [completedExerciseIds, setCompletedExerciseIds] = useState<Set<string>>(
-    new Set()
-  );
-  const [skippedExerciseIds, setSkippedExerciseIds] = useState<Set<string>>(
-    new Set()
-  );
-  const [hearts, setHearts] = useState(3);
-  const [selectedWords, setSelectedWords] = useState<string[]>([]);
-  const [availableWords, setAvailableWords] = useState<(string | null)[]>([]);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [activeId, setActiveId] = useState<string | null>(null);
   const wordWidthsRef = useRef<Map<number, number>>(new Map());
-  const originalPositionsRef = useRef<Map<string, number>>(new Map()); // Track original index for each word
-  const selectedWordOriginsRef = useRef<Map<string, number>>(new Map()); // Track which bank index each selected word came from (key: word, value: bank index)
-  const [wordWidths, setWordWidths] = useState<Map<number, number>>(new Map());
-
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -215,35 +219,23 @@ export default function Lesson() {
     })
   );
 
-  const currentExerciseId = exerciseQueue[0];
-  const currentExercise = lesson?.exercises.find(
-    (ex) => ex.id === currentExerciseId
-  );
-  const totalExercises = lesson?.exercises.length || 0;
-
-  // Reset state when exercise changes
+  // Initialize lesson when component mounts or lessonId changes
   useEffect(() => {
-    if (currentExercise) {
-      // Shuffle word bank for each exercise
-      const shuffled = [...currentExercise.wordBank].sort(() => Math.random() - 0.5);
-      setAvailableWords(shuffled);
-
-      // Store original positions for each word (word-index key)
-      originalPositionsRef.current = new Map();
-      shuffled.forEach((word, index) => {
-        originalPositionsRef.current.set(`${word}-${index}`, index);
-      });
-
-      setSelectedWords([]);
-      setIsCorrect(null);
-      setShowFeedback(false);
-      wordWidthsRef.current = new Map();
-      selectedWordOriginsRef.current = new Map();
-      setWordWidths(new Map()); // Reset measured widths for new exercise
+    if (lessonId) {
+      initializeLesson(lessonId);
     }
-  }, [currentExercise]);
+  }, [lessonId, initializeLesson]);
 
-  if (!lesson || !currentExercise) {
+  // Reset word widths ref when exercise changes
+  useEffect(() => {
+    wordWidthsRef.current = new Map();
+    // Initialize exercise when current exercise changes
+    if (currentExercise) {
+      initializeExercise(currentExercise.wordBank);
+    }
+  }, [currentExercise, initializeExercise]);
+
+  if (!lesson || !currentExercise || !currentExerciseId) {
     return (
       <div className="min-h-screen bg-duo-dark flex items-center justify-center">
         <div className="text-white text-2xl">Lesson not found</div>
@@ -252,14 +244,14 @@ export default function Lesson() {
   }
 
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
+    setActiveIdInStore(event.active.id as string);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    setActiveId(null);
+    setActiveIdInStore(null);
 
-    if (!over || showFeedback) return;
+    if (!over || showFeedback || !currentExercise) return;
 
     const activeId = active.id as string;
     const overId = over.id as string;
@@ -274,7 +266,7 @@ export default function Lesson() {
       const newIndex = parseInt(overIndex);
 
       if (!isNaN(oldIndex) && !isNaN(newIndex) && oldIndex !== newIndex) {
-        setSelectedWords(arrayMove(selectedWords, oldIndex, newIndex));
+        reorderWords(arrayMove(selectedWords, oldIndex, newIndex));
       }
     }
     // Case 2: Moving from bank to answer area
@@ -282,155 +274,64 @@ export default function Lesson() {
       const wordIndex = availableWords.findIndex(
         (word, i) => `bank-${word}-${i}` === activeId
       );
-      if (wordIndex !== -1) {
-        const word = availableWords[wordIndex];
-        setSelectedWords([...selectedWords, word]);
-        setAvailableWords(availableWords.filter((_, i) => i !== wordIndex));
+      if (wordIndex !== -1 && availableWords[wordIndex] !== null) {
+        selectWord(
+          availableWords[wordIndex] as string,
+          true,
+          undefined,
+          wordIndex
+        );
       }
     }
     // Case 3: Moving from answer back to bank
     else if (activeLocation === "selected" && overLocation === "bank") {
       const wordIndex = parseInt(activeIndex);
       if (!isNaN(wordIndex) && wordIndex < selectedWords.length) {
-        const word = selectedWords[wordIndex];
-        const newSelected = [...selectedWords];
-        newSelected.splice(wordIndex, 1);
-        setSelectedWords(newSelected);
-        setAvailableWords([...availableWords, word]);
+        selectWord(selectedWords[wordIndex], false, wordIndex);
       }
     }
   };
 
-  const handleWordClick = (word: string, fromBank: boolean, selectedIndex?: number, bankIndex?: number) => {
-    if (showFeedback) return; // Don't allow changes after checking
-
-    if (fromBank) {
-      // Moving from bank to answer
-      const foundBankIndex = bankIndex !== undefined ? bankIndex : availableWords.findIndex((aw) => aw === word);
-
-      // Store which bank position this word came from, keyed by its future position in selectedWords
-      const futureSelectedIndex = selectedWords.length;
-      selectedWordOriginsRef.current.set(futureSelectedIndex, foundBankIndex);
-
-      setSelectedWords([...selectedWords, word]);
-
-      // Replace word with null placeholder in bank to maintain layout
-      const newAvailable = [...availableWords];
-      newAvailable[foundBankIndex] = null;
-      setAvailableWords(newAvailable);
-    } else {
-      // Moving from answer back to bank
-      // Remove word from answer area (no placeholder in answer section)
-      const newSelected = [...selectedWords];
-      newSelected.splice(selectedIndex!, 1);
-      setSelectedWords(newSelected);
-
-      // Get the original bank position for this selected word
-      const originalBankIndex = selectedWordOriginsRef.current.get(selectedIndex!);
-
-      // Clean up the tracking map and shift down indices for words after this one
-      selectedWordOriginsRef.current.delete(selectedIndex!);
-      const updatedMap = new Map<number, number>();
-      selectedWordOriginsRef.current.forEach((bankIdx, selIdx) => {
-        if (selIdx > selectedIndex!) {
-          updatedMap.set(selIdx - 1, bankIdx); // Shift down by 1
-        } else {
-          updatedMap.set(selIdx, bankIdx);
-        }
-      });
-      selectedWordOriginsRef.current = updatedMap;
-
-      // Put word back in its original position in bank
-      if (originalBankIndex !== undefined) {
-        const newAvailable = [...availableWords];
-        newAvailable[originalBankIndex] = word;
-        setAvailableWords(newAvailable);
-      } else {
-        // Fallback: Put in first null slot or add to end
-        const firstNullIndex = availableWords.findIndex((w) => w === null);
-        if (firstNullIndex !== -1) {
-          const newAvailable = [...availableWords];
-          newAvailable[firstNullIndex] = word;
-          setAvailableWords(newAvailable);
-        } else {
-          setAvailableWords([...availableWords, word]);
-        }
-      }
-    }
+  const handleWordClick = (
+    word: string,
+    fromBank: boolean,
+    selectedIndex?: number,
+    bankIndex?: number
+  ) => {
+    if (showFeedback || !currentExercise) return; // Don't allow changes after checking or if no exercise
+    selectWord(word, fromBank, selectedIndex, bankIndex);
   };
 
   const handleCheck = () => {
-    const isAnswerCorrect =
-      selectedWords.length === currentExercise.correctAnswer.length &&
-      selectedWords.every(
-        (word, index) => word === currentExercise.correctAnswer[index]
-      );
-
-    setIsCorrect(isAnswerCorrect);
-    setShowFeedback(true);
+    if (!currentExercise) return;
+    checkAnswer(currentExercise.id, currentExercise.correctAnswer);
   };
 
   const handleContinue = () => {
-    if (isCorrect) {
-      // Mark exercise as completed
-      setCompletedExerciseIds((prev) => new Set([...prev, currentExerciseId]));
-      // Remove from skipped if it was there
-      setSkippedExerciseIds((prev) => {
-        const newSet = new Set([...prev]);
-        newSet.delete(currentExerciseId);
-        return newSet;
-      });
+    if (!currentExercise || !lesson) return;
 
-      // Remove from queue
-      const newQueue = exerciseQueue.slice(1);
-      setExerciseQueue(newQueue);
+    const { isLessonComplete } = continueToNextExercise(
+      currentExercise.id,
+      totalExercises,
+      lesson.xpReward
+    );
 
-      // Check if all exercises are completed
-      if (completedExerciseIds.size + 1 >= totalExercises) {
-        // Lesson complete - award XP and navigate back
-        updateXP(lesson!.xpReward);
-        if (lessonId) {
-          completeLesson(lessonId);
-        }
-        navigate("/learn");
-        return;
+    if (isLessonComplete) {
+      // Lesson complete - award XP and navigate back
+      updateXP(lesson.xpReward);
+      if (lessonId) {
+        completeLesson(lessonId);
       }
-    } else {
-      // Wrong answer - subtract a heart
-      setHearts((prev) => Math.max(0, prev - 1));
-
-      // Move current exercise to end of queue
-      const newQueue = [...exerciseQueue.slice(1), currentExerciseId];
-      setExerciseQueue(newQueue);
-
-      // Check if hearts depleted
-      if (hearts - 1 <= 0) {
-        // Game over - could navigate to a "try again" screen or back to learn
-        navigate("/learn");
-        return;
-      }
+      navigate("/learn");
     }
-
-    // Reset feedback state for next exercise
-    setShowFeedback(false);
-    setIsCorrect(null);
   };
 
   const handleSkip = () => {
-    // Mark exercise as skipped
-    setSkippedExerciseIds((prev) => new Set([...prev, currentExerciseId]));
-
-    // Move current exercise to end of queue
-    const newQueue = [...exerciseQueue.slice(1), currentExerciseId];
-    setExerciseQueue(newQueue);
-
-    // Reset state for next exercise
-    setSelectedWords([]);
-    setShowFeedback(false);
-    setIsCorrect(null);
+    if (!currentExerciseId) return;
+    skipExercise(currentExerciseId);
   };
 
-  const canCheck = selectedWords.length > 0;
+  const canCheck = selectedWords.length > 0 && !showFeedback;
 
   return (
     <DndContext
@@ -544,8 +445,12 @@ export default function Lesson() {
                       key={`bank-placeholder-${index}`}
                       className="px-6 py-3 rounded-2xl border-2 border-dashed border-gray-700 bg-transparent"
                       style={{
-                        width: wordWidths.has(index) ? `${wordWidths.get(index)}px` : "auto",
-                        minWidth: wordWidths.has(index) ? `${wordWidths.get(index)}px` : undefined,
+                        width: wordWidths.has(index)
+                          ? `${wordWidths.get(index)}px`
+                          : "auto",
+                        minWidth: wordWidths.has(index)
+                          ? `${wordWidths.get(index)}px`
+                          : undefined,
                       }}
                     >
                       <span className="opacity-0 text-lg font-bold">word</span>
@@ -555,14 +460,14 @@ export default function Lesson() {
                       key={`available-${index}`}
                       id={`bank-${word}-${index}`}
                       word={word}
-                      onClick={() => handleWordClick(word, true, undefined, index)}
+                      onClick={() =>
+                        handleWordClick(word, true, undefined, index)
+                      }
                       disabled={showFeedback}
                       onMeasure={(width) => {
                         // Only store width if not already measured
                         if (!wordWidthsRef.current.has(index)) {
                           wordWidthsRef.current.set(index, width);
-                          // Update state to trigger re-render with new widths
-                          setWordWidths(new Map(wordWidthsRef.current));
                         }
                       }}
                     />
@@ -602,9 +507,7 @@ export default function Lesson() {
                         {t("lesson.correctAnswer")}{" "}
                         <span className="inline-flex gap-1">
                           {currentExercise.correctAnswer.map((word, idx) => (
-                            <span key={idx}>
-                              {getMonospaceWord(word)}
-                            </span>
+                            <span key={idx}>{getMonospaceWord(word)}</span>
                           ))}
                         </span>
                       </p>

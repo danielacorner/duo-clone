@@ -5,7 +5,13 @@ export interface Exercise {
   prompt?: string; // For audio or display text
   correctAnswer: string[];
   wordBank: string[];
-  hint?: string;
+  tip?: string; // General advice (e.g., "Use camelCase for event handlers")
+  hint?: string; // Specific clue about the correct answer (hidden by default)
+  codeContext?: {
+    before: string[]; // Lines of code before the blank
+    blankLine: string; // The line with the blank (prefix before the answer)
+    after: string[]; // Lines of code after the blank
+  };
 }
 
 export interface Lesson {
@@ -30,7 +36,18 @@ export const lessons: Record<string, Lesson> = {
         prompt: 'function Welcome() { }',
         correctAnswer: ['return', '<div>', 'Hello', '</div>'],
         wordBank: ['return', '<div>', '<span>', 'Hello', '</div>', 'render', 'const'],
-        hint: 'Components must return JSX'
+        tip:'Components must return JSX',
+        hint: 'Use "return" followed by a <div> containing "Hello"',
+        codeContext: {
+          before: [
+            '// Welcome.tsx',
+            'function Welcome() {'
+          ],
+          blankLine: '  ',
+          after: [
+            '}'
+          ]
+        }
       },
       {
         id: 'ex-1-2',
@@ -38,7 +55,19 @@ export const lessons: Record<string, Lesson> = {
         question: 'Create a component that displays a greeting',
         correctAnswer: ['function', 'Greeting', '()', '{', 'return', '<h1>', 'Welcome!', '</h1>', '}'],
         wordBank: ['function', 'Greeting', '()', '{', 'return', '<h1>', 'Welcome!', '</h1>', '}', 'class', 'render', 'const'],
-        hint: 'Function components return JSX'
+        tip:'Function components return JSX',
+        codeContext: {
+          before: [
+            '// Greeting.tsx',
+            'import React from "react"',
+            ''
+          ],
+          blankLine: '',
+          after: [
+            '',
+            'export default Greeting'
+          ]
+        }
       },
       {
         id: 'ex-1-3',
@@ -46,7 +75,18 @@ export const lessons: Record<string, Lesson> = {
         question: 'Export a component',
         correctAnswer: ['export', 'default', 'Welcome'],
         wordBank: ['export', 'default', 'Welcome', 'import', 'function', 'const', 'module'],
-        hint: 'Use default export'
+        tip:'Use default export',
+        codeContext: {
+          before: [
+            '// Welcome.tsx',
+            'function Welcome() {',
+            '  return <div>Hello</div>',
+            '}',
+            ''
+          ],
+          blankLine: '',
+          after: []
+        }
       }
     ]
   },
@@ -63,7 +103,21 @@ export const lessons: Record<string, Lesson> = {
         prompt: 'const name = "React"',
         correctAnswer: ['<h1>', '{name}', '</h1>'],
         wordBank: ['<h1>', '{name}', '</h1>', '(name)', '${name}', '<div>', '"name"'],
-        hint: 'Use curly braces for expressions'
+        tip:'Use curly braces for expressions',
+        hint: 'Wrap the variable "name" in curly braces {name} inside an <h1>',
+        codeContext: {
+          before: [
+            'function Greeting() {',
+            '  const name = "React"',
+            '',
+            '  return ('
+          ],
+          blankLine: '    ',
+          after: [
+            '  )',
+            '}'
+          ]
+        }
       },
       {
         id: 'ex-2-2',
@@ -71,7 +125,18 @@ export const lessons: Record<string, Lesson> = {
         question: 'JSX must have a single parent element',
         correctAnswer: ['<div>', '<h1>', 'Title', '</h1>', '<p>', 'Text', '</p>', '</div>'],
         wordBank: ['<div>', '<h1>', 'Title', '</h1>', '<p>', 'Text', '</p>', '</div>', '<>', '</>'],
-        hint: 'Wrap multiple elements in a parent'
+        tip:'Wrap multiple elements in a parent',
+        codeContext: {
+          before: [
+            'function Card() {',
+            '  return ('
+          ],
+          blankLine: '    ',
+          after: [
+            '  )',
+            '}'
+          ]
+        }
       }
     ]
   },
@@ -87,7 +152,20 @@ export const lessons: Record<string, Lesson> = {
         question: 'Define props in a function component',
         correctAnswer: ['function', 'Greeting', '({', 'name', '})'],
         wordBank: ['function', 'Greeting', '({', 'name', '})', 'props', 'this', 'state'],
-        hint: 'Use destructuring for props'
+        tip:'Use destructuring for props',
+        hint: 'Create a function called Greeting that destructures the name prop',
+        codeContext: {
+          before: [
+            '// Greeting.tsx'
+          ],
+          blankLine: '',
+          after: [
+            '  return <h1>Hello, {name}!</h1>',
+            '}',
+            '',
+            'export default Greeting'
+          ]
+        }
       },
       {
         id: 'ex-3-2',
@@ -95,7 +173,21 @@ export const lessons: Record<string, Lesson> = {
         question: 'Pass props to a component',
         correctAnswer: ['<Greeting', 'name=', '"Alice"', '/>'],
         wordBank: ['<Greeting', 'name=', '"Alice"', '/>', 'props=', '{name}', 'value='],
-        hint: 'Use attribute syntax in JSX'
+        tip:'Use attribute syntax in JSX',
+        hint: 'Set the name prop to the string "Alice" on the Greeting component',
+        codeContext: {
+          before: [
+            'import Greeting from "./Greeting"',
+            '',
+            'function App() {',
+            '  return ('
+          ],
+          blankLine: '    ',
+          after: [
+            '  )',
+            '}'
+          ]
+        }
       }
     ]
   },
@@ -111,7 +203,19 @@ export const lessons: Record<string, Lesson> = {
         question: 'Create a complete React component',
         correctAnswer: ['function', 'App', '()', '{', 'return', '<h1>', 'Hello', '</h1>', '}'],
         wordBank: ['function', 'App', '()', '{', 'return', '<h1>', 'Hello', '</h1>', '}', 'class', 'render', 'const'],
-        hint: 'Combine component declaration and JSX return'
+        tip:'Combine component declaration and JSX return',
+        codeContext: {
+          before: [
+            '// App.tsx',
+            'import React from "react"',
+            ''
+          ],
+          blankLine: '',
+          after: [
+            '',
+            'export default App'
+          ]
+        }
       },
       {
         id: 'ex-p1-2',
@@ -119,7 +223,18 @@ export const lessons: Record<string, Lesson> = {
         question: 'Use props with JSX expression',
         correctAnswer: ['<div>', '{props.message}', '</div>'],
         wordBank: ['<div>', '{props.message}', '</div>', '(props.message)', 'props.message', '${props.message}'],
-        hint: 'Access props with dot notation inside curly braces'
+        tip:'Access props with dot notation inside curly braces',
+        codeContext: {
+          before: [
+            'function MessageDisplay(props) {',
+            '  return ('
+          ],
+          blankLine: '    ',
+          after: [
+            '  )',
+            '}'
+          ]
+        }
       }
     ]
   },
@@ -135,7 +250,25 @@ export const lessons: Record<string, Lesson> = {
         question: 'Initialize state with a default value',
         correctAnswer: ['const', '[isOpen,', 'setIsOpen]', '=', 'useState(false)'],
         wordBank: ['const', '[isOpen,', 'setIsOpen]', '=', 'useState(false)', 'useState(true)', 'let', 'var'],
-        hint: 'useState returns array with state and setter'
+        tip:'useState returns array with state and setter',
+        hint: 'Destructure [isOpen, setIsOpen] from useState(false)',
+        codeContext: {
+          before: [
+            'import { useState } from "react"',
+            '',
+            'function Modal() {'
+          ],
+          blankLine: '  ',
+          after: [
+            '',
+            '  return (',
+            '    <div>',
+            '      {isOpen && <div>Modal Content</div>}',
+            '    </div>',
+            '  )',
+            '}'
+          ]
+        }
       },
       {
         id: 'ex-4-2',
@@ -143,7 +276,21 @@ export const lessons: Record<string, Lesson> = {
         question: 'Declare state with useState',
         correctAnswer: ['const', '[count,', 'setCount]', '=', 'useState(0)'],
         wordBank: ['const', '[count,', 'setCount]', '=', 'useState(0)', 'let', 'var', 'this.state'],
-        hint: 'Array destructuring for state and setter'
+        tip:'Array destructuring for state and setter',
+        hint: 'Start with "const" and destructure [count, setCount] from useState(0)',
+        codeContext: {
+          before: [
+            'import { useState } from "react"',
+            '',
+            'function Counter() {'
+          ],
+          blankLine: '  ',
+          after: [
+            '',
+            '  return <div>Count: {count}</div>',
+            '}'
+          ]
+        }
       }
     ]
   },
@@ -159,7 +306,25 @@ export const lessons: Record<string, Lesson> = {
         question: 'Add onClick handler',
         correctAnswer: ['<button', 'onClick={handleClick}', '>', 'Click', '</button>'],
         wordBank: ['<button', 'onClick={handleClick}', '>', 'Click', '</button>', 'onclick=', 'on-click=', 'click='],
-        hint: 'Use camelCase for event handlers'
+        tip:'Use camelCase for event handlers',
+        hint: 'The handler function is called "handleClick" - pass it using curly braces',
+        codeContext: {
+          before: [
+            'function Counter() {',
+            '  const [count, setCount] = useState(0)',
+            '',
+            '  const handleClick = () => {',
+            '    setCount(count + 1)',
+            '  }',
+            '',
+            '  return ('
+          ],
+          blankLine: '    ',
+          after: [
+            '  )',
+            '}'
+          ]
+        }
       },
       {
         id: 'ex-5-2',
@@ -167,7 +332,23 @@ export const lessons: Record<string, Lesson> = {
         question: 'Update state on click',
         correctAnswer: ['setCount(count', '+', '1)'],
         wordBank: ['setCount(count', '+', '1)', 'count++', 'count', '=', 'setState'],
-        hint: 'Call the setter function with new value'
+        tip:'Call the setter function with new value',
+        hint: 'Use setCount() and add 1 to the current count value',
+        codeContext: {
+          before: [
+            'function Counter() {',
+            '  const [count, setCount] = useState(0)',
+            '',
+            '  const handleClick = () => {'
+          ],
+          blankLine: '    ',
+          after: [
+            '  }',
+            '',
+            '  return <button onClick={handleClick}>{count}</button>',
+            '}'
+          ]
+        }
       }
     ]
   },
@@ -183,7 +364,27 @@ export const lessons: Record<string, Lesson> = {
         question: 'Run effect when dependency changes',
         correctAnswer: ['useEffect(()=>{', 'updateTitle()', '},', '[count]', ')'],
         wordBank: ['useEffect(()=>{', 'updateTitle()', '},', '[count]', ')', '[]', 'useEffect', '[data]'],
-        hint: 'Effect runs when count changes'
+        tip:'Effect runs when count changes',
+        hint: 'Pass [count] as the dependency array to run the effect when count changes',
+        codeContext: {
+          before: [
+            'import { useState, useEffect } from "react"',
+            '',
+            'function Counter() {',
+            '  const [count, setCount] = useState(0)',
+            '',
+            '  const updateTitle = () => {',
+            '    document.title = `Count: ${count}`',
+            '  }',
+            ''
+          ],
+          blankLine: '  ',
+          after: [
+            '',
+            '  return <div>{count}</div>',
+            '}'
+          ]
+        }
       },
       {
         id: 'ex-6-2',
@@ -191,7 +392,27 @@ export const lessons: Record<string, Lesson> = {
         question: 'Run effect on mount',
         correctAnswer: ['useEffect(()=>{', 'fetchData()', '},', '[]', ')'],
         wordBank: ['useEffect(()=>{', 'fetchData()', '},', '[]', ')', '[data]', 'useEffect'],
-        hint: 'Empty dependency array runs once on mount'
+        tip:'Empty dependency array runs once on mount',
+        codeContext: {
+          before: [
+            'import { useState, useEffect } from "react"',
+            '',
+            'function DataDisplay() {',
+            '  const [data, setData] = useState(null)',
+            '',
+            '  const fetchData = async () => {',
+            '    const response = await fetch("/api/data")',
+            '    setData(await response.json())',
+            '  }',
+            ''
+          ],
+          blankLine: '  ',
+          after: [
+            '',
+            '  return <div>{JSON.stringify(data)}</div>',
+            '}'
+          ]
+        }
       }
     ]
   },
@@ -207,7 +428,21 @@ export const lessons: Record<string, Lesson> = {
         question: 'Render with ternary operator',
         correctAnswer: ['{isLoggedIn', '?', '<Dashboard/>', ':', '<Login/>}'],
         wordBank: ['{isLoggedIn', '?', '<Dashboard/>', ':', '<Login/>}', 'if', 'else', '&&'],
-        hint: 'Use ternary for if-else in JSX'
+        tip:'Use ternary for if-else in JSX',
+        hint: 'Use the pattern: {condition ? <TrueComponent/> : <FalseComponent/>}',
+        codeContext: {
+          before: [
+            'function App() {',
+            '  const [isLoggedIn, setIsLoggedIn] = useState(false)',
+            '',
+            '  return ('
+          ],
+          blankLine: '    ',
+          after: [
+            '  )',
+            '}'
+          ]
+        }
       },
       {
         id: 'ex-7-2',
@@ -215,7 +450,23 @@ export const lessons: Record<string, Lesson> = {
         question: 'Conditionally render with logical AND',
         correctAnswer: ['{hasError', '&&', '<ErrorMessage/>}'],
         wordBank: ['{hasError', '&&', '<ErrorMessage/>}', '?', ':', 'if', '||'],
-        hint: 'Use && to render only when condition is true'
+        tip:'Use && to render only when condition is true',
+        codeContext: {
+          before: [
+            'function Form() {',
+            '  const [hasError, setHasError] = useState(false)',
+            '',
+            '  return (',
+            '    <div>'
+          ],
+          blankLine: '      ',
+          after: [
+            '      <input type="text" />',
+            '    </div>',
+            '  )',
+            '}'
+          ]
+        }
       }
     ]
   },
@@ -231,7 +482,20 @@ export const lessons: Record<string, Lesson> = {
         question: 'Map array to JSX elements',
         correctAnswer: ['{items.map(item', '=>', '<li', 'key={item.id}', '>{item.name}</li>)}'],
         wordBank: ['{items.map(item', '=>', '<li', 'key={item.id}', '>{item.name}</li>)}', 'key=', 'id=', 'forEach'],
-        hint: 'Always add key prop to list items'
+        tip:'Always add key prop to list items',
+        codeContext: {
+          before: [
+            'function ItemList({ items }) {',
+            '  return (',
+            '    <ul>'
+          ],
+          blankLine: '      ',
+          after: [
+            '    </ul>',
+            '  )',
+            '}'
+          ]
+        }
       },
       {
         id: 'ex-8-2',
@@ -239,7 +503,20 @@ export const lessons: Record<string, Lesson> = {
         question: 'Filter and map an array',
         correctAnswer: ['{users.filter(u', '=>', 'u.active).map(u', '=>', '<User', 'key={u.id}', '/>)}'],
         wordBank: ['{users.filter(u', '=>', 'u.active).map(u', '=>', '<User', 'key={u.id}', '/>)}', 'forEach', 'if', 'id='],
-        hint: 'Chain filter and map for conditional lists'
+        tip:'Chain filter and map for conditional lists',
+        codeContext: {
+          before: [
+            'function ActiveUsers({ users }) {',
+            '  return (',
+            '    <div>'
+          ],
+          blankLine: '      ',
+          after: [
+            '    </div>',
+            '  )',
+            '}'
+          ]
+        }
       }
     ]
   },
@@ -255,7 +532,22 @@ export const lessons: Record<string, Lesson> = {
         question: 'Controlled input component',
         correctAnswer: ['<input', 'value={name}', 'onChange={handleChange}', '/>'],
         wordBank: ['<input', 'value={name}', 'onChange={handleChange}', '/>', 'onchange=', 'defaultValue='],
-        hint: 'Use value and onChange for controlled inputs'
+        tip:'Use value and onChange for controlled inputs',
+        codeContext: {
+          before: [
+            'function NameForm() {',
+            '  const [name, setName] = useState("")',
+            '',
+            '  const handleChange = (e) => setName(e.target.value)',
+            '',
+            '  return ('
+          ],
+          blankLine: '    ',
+          after: [
+            '  )',
+            '}'
+          ]
+        }
       },
       {
         id: 'ex-9-2',
@@ -263,7 +555,23 @@ export const lessons: Record<string, Lesson> = {
         question: 'Handle form submission',
         correctAnswer: ['<form', 'onSubmit={handleSubmit}', '>', '<button', 'type=', '"submit"', '>', 'Submit', '</button>', '</form>'],
         wordBank: ['<form', 'onSubmit={handleSubmit}', '>', '<button', 'type=', '"submit"', '>', 'Submit', '</button>', '</form>', 'onClick=', 'onsubmit='],
-        hint: 'Use onSubmit on form element'
+        tip:'Use onSubmit on form element',
+        codeContext: {
+          before: [
+            'function ContactForm() {',
+            '  const handleSubmit = (e) => {',
+            '    e.preventDefault()',
+            '    // Submit form data',
+            '  }',
+            '',
+            '  return ('
+          ],
+          blankLine: '    ',
+          after: [
+            '  )',
+            '}'
+          ]
+        }
       }
     ]
   },
@@ -279,7 +587,20 @@ export const lessons: Record<string, Lesson> = {
         question: 'Pass state setter as prop',
         correctAnswer: ['<Child', 'value={count}', 'onChange={setCount}', '/>'],
         wordBank: ['<Child', 'value={count}', 'onChange={setCount}', '/>', 'state=', 'setState='],
-        hint: 'Pass both value and setter to child'
+        tip:'Pass both value and setter to child',
+        codeContext: {
+          before: [
+            'function Parent() {',
+            '  const [count, setCount] = useState(0)',
+            '',
+            '  return ('
+          ],
+          blankLine: '    ',
+          after: [
+            '  )',
+            '}'
+          ]
+        }
       },
       {
         id: 'ex-10-2',
@@ -287,7 +608,25 @@ export const lessons: Record<string, Lesson> = {
         question: 'Define parent component with shared state',
         correctAnswer: ['const', '[text,', 'setText]', '=', 'useState(', '""', ')'],
         wordBank: ['const', '[text,', 'setText]', '=', 'useState(', '""', ')', 'null', 'undefined', 'let'],
-        hint: 'Initialize state in parent to share with children'
+        tip:'Initialize state in parent to share with children',
+        codeContext: {
+          before: [
+            'import { useState } from "react"',
+            '',
+            'function ParentComponent() {'
+          ],
+          blankLine: '  ',
+          after: [
+            '',
+            '  return (',
+            '    <>',
+            '      <InputChild value={text} onChange={setText} />',
+            '      <DisplayChild value={text} />',
+            '    </>',
+            '  )',
+            '}'
+          ]
+        }
       }
     ]
   },
@@ -303,7 +642,19 @@ export const lessons: Record<string, Lesson> = {
         question: 'Create a context',
         correctAnswer: ['const', 'ThemeContext', '=', 'createContext()'],
         wordBank: ['const', 'ThemeContext', '=', 'createContext()', 'React.createContext()', 'useContext()'],
-        hint: 'Use createContext to create a new context'
+        tip:'Use createContext to create a new context',
+        codeContext: {
+          before: [
+            '// ThemeContext.tsx',
+            'import { createContext } from "react"',
+            ''
+          ],
+          blankLine: '',
+          after: [
+            '',
+            'export default ThemeContext'
+          ]
+        }
       },
       {
         id: 'ex-11-2',
@@ -311,7 +662,25 @@ export const lessons: Record<string, Lesson> = {
         question: 'Use context in component',
         correctAnswer: ['const', 'theme', '=', 'useContext(ThemeContext)'],
         wordBank: ['const', 'theme', '=', 'useContext(ThemeContext)', 'getContext', 'Context.use'],
-        hint: 'useContext hook retrieves context value'
+        tip:'useContext hook retrieves context value',
+        codeContext: {
+          before: [
+            'import { useContext } from "react"',
+            'import ThemeContext from "./ThemeContext"',
+            '',
+            'function ThemedButton() {'
+          ],
+          blankLine: '  ',
+          after: [
+            '',
+            '  return (',
+            '    <button style={{ background: theme.color }}>',
+            '      Click me',
+            '    </button>',
+            '  )',
+            '}'
+          ]
+        }
       }
     ]
   },
@@ -327,7 +696,19 @@ export const lessons: Record<string, Lesson> = {
         question: 'Define custom hook',
         correctAnswer: ['function', 'useLocalStorage(key)', '{', 'return', '[value,', 'setValue]', '}'],
         wordBank: ['function', 'useLocalStorage(key)', '{', 'return', '[value,', 'setValue]', '}', 'const', 'hook'],
-        hint: 'Custom hooks must start with "use"'
+        tip:'Custom hooks must start with "use"',
+        codeContext: {
+          before: [
+            '// useLocalStorage.ts',
+            'import { useState, useEffect } from "react"',
+            ''
+          ],
+          blankLine: '',
+          after: [
+            '',
+            'export default useLocalStorage'
+          ]
+        }
       },
       {
         id: 'ex-12-2',
@@ -335,7 +716,20 @@ export const lessons: Record<string, Lesson> = {
         question: 'Use custom hook in component',
         correctAnswer: ['const', '[data,', 'setData]', '=', 'useLocalStorage(', '"key"', ')'],
         wordBank: ['const', '[data,', 'setData]', '=', 'useLocalStorage(', '"key"', ')', 'useState', 'useEffect'],
-        hint: 'Custom hooks work like built-in hooks'
+        tip:'Custom hooks work like built-in hooks',
+        codeContext: {
+          before: [
+            'import useLocalStorage from "./useLocalStorage"',
+            '',
+            'function Settings() {'
+          ],
+          blankLine: '  ',
+          after: [
+            '',
+            '  return <div>{data}</div>',
+            '}'
+          ]
+        }
       }
     ]
   },
@@ -351,7 +745,23 @@ export const lessons: Record<string, Lesson> = {
         question: 'Use reducer for state',
         correctAnswer: ['const', '[state,', 'dispatch]', '=', 'useReducer(reducer,', 'initialState)'],
         wordBank: ['const', '[state,', 'dispatch]', '=', 'useReducer(reducer,', 'initialState)', 'useState', 'reducer'],
-        hint: 'useReducer takes reducer function and initial state'
+        tip:'useReducer takes reducer function and initial state',
+        codeContext: {
+          before: [
+            'import { useReducer } from "react"',
+            '',
+            'const initialState = { count: 0 }',
+            'const reducer = (state, action) => { /* ... */ }',
+            '',
+            'function Counter() {'
+          ],
+          blankLine: '  ',
+          after: [
+            '',
+            '  return <div>{state.count}</div>',
+            '}'
+          ]
+        }
       },
       {
         id: 'ex-13-2',
@@ -359,7 +769,22 @@ export const lessons: Record<string, Lesson> = {
         question: 'Dispatch an action',
         correctAnswer: ['dispatch({', 'type:', '"INCREMENT",', 'payload:', '1', '})'],
         wordBank: ['dispatch({', 'type:', '"INCREMENT",', 'payload:', '1', '})', 'setState', 'action'],
-        hint: 'Dispatch objects with type and payload'
+        tip:'Dispatch objects with type and payload',
+        codeContext: {
+          before: [
+            'function Counter() {',
+            '  const [state, dispatch] = useReducer(reducer, initialState)',
+            '',
+            '  const handleClick = () => {'
+          ],
+          blankLine: '    ',
+          after: [
+            '  }',
+            '',
+            '  return <button onClick={handleClick}>+</button>',
+            '}'
+          ]
+        }
       }
     ]
   },
@@ -375,7 +800,25 @@ export const lessons: Record<string, Lesson> = {
         question: 'Memoize computed value',
         correctAnswer: ['const', 'result', '=', 'useMemo(()=>', 'expensiveCalc(a,b),', '[a,b])'],
         wordBank: ['const', 'result', '=', 'useMemo(()=>', 'expensiveCalc(a,b),', '[a,b])', 'memo', 'useEffect'],
-        hint: 'useMemo caches value until dependencies change'
+        tip:'useMemo caches value until dependencies change',
+        codeContext: {
+          before: [
+            'import { useMemo } from "react"',
+            '',
+            'function Calculator({ a, b }) {',
+            '  const expensiveCalc = (x, y) => {',
+            '    // Complex calculation',
+            '    return x * y',
+            '  }',
+            ''
+          ],
+          blankLine: '  ',
+          after: [
+            '',
+            '  return <div>{result}</div>',
+            '}'
+          ]
+        }
       },
       {
         id: 'ex-14-2',
@@ -383,7 +826,24 @@ export const lessons: Record<string, Lesson> = {
         question: 'Memoize filtered list',
         correctAnswer: ['const', 'filtered', '=', 'useMemo(()=>', 'items.filter(filterFn),', '[items,', 'filterFn])'],
         wordBank: ['const', 'filtered', '=', 'useMemo(()=>', 'items.filter(filterFn),', '[items,', 'filterFn])', '[]', 'useEffect'],
-        hint: 'Avoid re-filtering on every render'
+        tip:'Avoid re-filtering on every render',
+        codeContext: {
+          before: [
+            'import { useMemo } from "react"',
+            '',
+            'function ItemList({ items, filterFn }) {'
+          ],
+          blankLine: '  ',
+          after: [
+            '',
+            '  return (',
+            '    <ul>',
+            '      {filtered.map(item => <li key={item.id}>{item.name}</li>)}',
+            '    </ul>',
+            '  )',
+            '}'
+          ]
+        }
       }
     ]
   },
@@ -399,7 +859,22 @@ export const lessons: Record<string, Lesson> = {
         question: 'Memoize callback function',
         correctAnswer: ['const', 'handleClick', '=', 'useCallback(()=>{', 'doSomething()', '},', '[dependency])'],
         wordBank: ['const', 'handleClick', '=', 'useCallback(()=>{', 'doSomething()', '},', '[dependency])', 'useMemo', '[]'],
-        hint: 'useCallback prevents function recreation on every render'
+        tip:'useCallback prevents function recreation on every render',
+        codeContext: {
+          before: [
+            'import { useCallback } from "react"',
+            '',
+            'function Parent({ dependency }) {',
+            '  const doSomething = () => console.log(dependency)',
+            ''
+          ],
+          blankLine: '  ',
+          after: [
+            '',
+            '  return <Child onClick={handleClick} />',
+            '}'
+          ]
+        }
       },
       {
         id: 'ex-15-2',
@@ -407,7 +882,22 @@ export const lessons: Record<string, Lesson> = {
         question: 'Pass memoized callback to child',
         correctAnswer: ['<Button', 'onClick={memoizedHandler}', '/>'],
         wordBank: ['<Button', 'onClick={memoizedHandler}', '/>', 'onClick={()=>handler()}', 'handler=', 'function='],
-        hint: 'Prevents child re-renders when parent re-renders'
+        tip:'Prevents child re-renders when parent re-renders',
+        codeContext: {
+          before: [
+            'function Parent() {',
+            '  const memoizedHandler = useCallback(() => {',
+            '    // Handle click',
+            '  }, [])',
+            '',
+            '  return ('
+          ],
+          blankLine: '    ',
+          after: [
+            '  )',
+            '}'
+          ]
+        }
       }
     ]
   }

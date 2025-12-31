@@ -201,6 +201,7 @@ export default function Lesson() {
   const [availableWords, setAvailableWords] = useState<(string | null)[]>([]);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const wordWidthsRef = useRef<Map<number, number>>(new Map());
   const originalPositionsRef = useRef<Map<string, number>>(new Map()); // Track original index for each word
@@ -237,6 +238,7 @@ export default function Lesson() {
       setSelectedWords([]);
       setIsCorrect(null);
       setShowFeedback(false);
+      setShowHint(false);
       wordWidthsRef.current = new Map();
       selectedWordOriginsRef.current = new Map();
       setWordWidths(new Map()); // Reset measured widths for new exercise
@@ -508,6 +510,37 @@ export default function Lesson() {
               </div>
             )}
 
+            {/* Code context (if any) */}
+            {currentExercise.codeContext && (
+              <div className="mb-8 bg-gray-900/50 px-8 py-6 rounded-2xl border border-gray-700/50">
+                <pre className="font-mono text-base leading-relaxed">
+                  {/* Code before the blank */}
+                  {currentExercise.codeContext.before.map((line, index) => (
+                    <div key={`before-${index}`} className="text-gray-500 opacity-60">
+                      {line}
+                    </div>
+                  ))}
+
+                  {/* Line with the blank */}
+                  <div className="flex items-center gap-2 my-2">
+                    <span className="text-gray-400">
+                      {currentExercise.codeContext.blankLine}
+                    </span>
+                    <span className="inline-flex px-4 py-1 bg-duo-blue/20 border-2 border-duo-blue/50 rounded-lg text-duo-blue font-bold animate-pulse">
+                      {selectedWords.length > 0 ? selectedWords.join(' ') : '___'}
+                    </span>
+                  </div>
+
+                  {/* Code after the blank */}
+                  {currentExercise.codeContext.after.map((line, index) => (
+                    <div key={`after-${index}`} className="text-gray-500 opacity-60">
+                      {line}
+                    </div>
+                  ))}
+                </pre>
+              </div>
+            )}
+
             {/* Answer area */}
             <DroppableArea
               id="answer-area"
@@ -536,7 +569,7 @@ export default function Lesson() {
 
             {/* Word bank */}
             <DroppableArea id="bank-area" className="mb-8">
-              <div className="flex flex-wrap gap-3 justify-center h-48 content-start">
+              <div className="flex flex-wrap gap-3 justify-center min-h-[120px] content-start">
                 {availableWords.map((word, index) =>
                   word === null ? (
                     // Empty placeholder box to maintain layout with measured width
@@ -571,10 +604,30 @@ export default function Lesson() {
               </div>
             </DroppableArea>
 
-            {/* Hint */}
+            {/* Tip (general advice) */}
+            {currentExercise.tip && !showFeedback && (
+              <div className="text-gray-400 text-sm italic mb-4">
+                💡 {currentExercise.tip}
+              </div>
+            )}
+
+            {/* Hint button and revealed hint */}
             {currentExercise.hint && !showFeedback && (
-              <div className="text-gray-400 text-sm italic mb-8">
-                💡 {t("lesson.hint")} {currentExercise.hint}
+              <div className="mb-8">
+                {!showHint ? (
+                  <button
+                    onClick={() => setShowHint(true)}
+                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    💭 Show Hint
+                  </button>
+                ) : (
+                  <div className="bg-duo-blue/10 border border-duo-blue/30 px-4 py-3 rounded-lg">
+                    <div className="text-duo-blue font-medium text-sm">
+                      💡 Hint: {currentExercise.hint}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

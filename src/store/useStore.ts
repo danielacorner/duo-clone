@@ -41,7 +41,7 @@ const mockQuests: Quest[] = [
   },
 ];
 
-const mockUnits: Unit[] = [
+const baseMockUnits: Unit[] = [
   {
     id: "unit-1",
     title: "unit1", // Translation key
@@ -227,6 +227,17 @@ const mockUnits: Unit[] = [
     ],
   },
 ];
+
+// In dev mode, unlock all lessons
+const mockUnits: Unit[] = import.meta.env.DEV
+  ? baseMockUnits.map((unit) => ({
+      ...unit,
+      nodes: unit.nodes.map((node) => ({
+        ...node,
+        status: node.status === "locked" ? ("available" as const) : node.status,
+      })),
+    }))
+  : baseMockUnits;
 
 const mockUser: User = {
   name: "User",

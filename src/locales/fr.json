@@ -27,7 +27,7 @@
     "progress": "{{current}} / {{total}}"
   },
   "lesson": {
-    "newWord": "NOUVEAU MOT",
+    "newWord": "NOUVEAU CONCEPT",
     "hint": "Indice :",
     "excellent": "Excellent !",
     "notQuite": "Pas tout à fait !",

@@ -20,15 +20,15 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { lessons } from "../data/lessons";
 import { useStore } from "../store/useStore";
 
 // Monospace font helper for code words
 function getMonospaceWord(word: string) {
   return (
-    <span style={{ fontFamily: "monospace", fontSize: "16px" }}>
-      {word}
-    </span>
+    <span style={{ fontFamily: "monospace", fontSize: "16px" }}>{word}</span>
   );
 }
 
@@ -226,7 +226,9 @@ export default function Lesson() {
   useEffect(() => {
     if (currentExercise) {
       // Shuffle word bank for each exercise
-      const shuffled = [...currentExercise.wordBank].sort(() => Math.random() - 0.5);
+      const shuffled = [...currentExercise.wordBank].sort(
+        () => Math.random() - 0.5
+      );
       setAvailableWords(shuffled);
 
       // Store original positions for each word (word-index key)
@@ -303,12 +305,20 @@ export default function Lesson() {
     }
   };
 
-  const handleWordClick = (word: string, fromBank: boolean, selectedIndex?: number, bankIndex?: number) => {
+  const handleWordClick = (
+    word: string,
+    fromBank: boolean,
+    selectedIndex?: number,
+    bankIndex?: number
+  ) => {
     if (showFeedback) return; // Don't allow changes after checking
 
     if (fromBank) {
       // Moving from bank to answer
-      const foundBankIndex = bankIndex !== undefined ? bankIndex : availableWords.findIndex((aw) => aw === word);
+      const foundBankIndex =
+        bankIndex !== undefined
+          ? bankIndex
+          : availableWords.findIndex((aw) => aw === word);
 
       // Store which bank position this word came from, keyed by its future position in selectedWords
       const futureSelectedIndex = selectedWords.length;
@@ -328,7 +338,9 @@ export default function Lesson() {
       setSelectedWords(newSelected);
 
       // Get the original bank position for this selected word
-      const originalBankIndex = selectedWordOriginsRef.current.get(selectedIndex!);
+      const originalBankIndex = selectedWordOriginsRef.current.get(
+        selectedIndex!
+      );
 
       // Clean up the tracking map and shift down indices for words after this one
       selectedWordOriginsRef.current.delete(selectedIndex!);
@@ -443,7 +455,7 @@ export default function Lesson() {
     >
       <div className="min-h-screen bg-duo-dark flex flex-col">
         {/* Header with progress */}
-        <div className="bg-duo-dark border-b border-gray-700 p-4">
+        <div className="bg-duo-dark border-b border-gray-700 p-4 sticky top-0 z-10">
           <div className="max-w-4xl mx-auto flex items-center gap-4">
             <button
               onClick={() => navigate("/learn")}
@@ -512,32 +524,127 @@ export default function Lesson() {
 
             {/* Code context (if any) */}
             {currentExercise.codeContext && (
-              <div className="mb-8 bg-gray-900/50 px-8 py-6 rounded-2xl border border-gray-700/50">
-                <pre className="font-mono text-base leading-relaxed">
+              <div className="mb-8 bg-[#1e1e1e] px-6 py-4 rounded-2xl border border-gray-700/50">
+                <div className="text-sm">
                   {/* Code before the blank */}
-                  {currentExercise.codeContext.before.map((line, index) => (
-                    <div key={`before-${index}`} className="text-gray-500 opacity-60">
-                      {line}
-                    </div>
-                  ))}
+                  {currentExercise.codeContext.before.length > 0 && (
+                    <SyntaxHighlighter
+                      language="typescript"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        margin: 0,
+                        padding: 0,
+                        background: "transparent",
+                        fontSize: "0.875rem",
+                        opacity: 0.6,
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+                        overflowWrap: "break-word",
+                      }}
+                      codeTagProps={{
+                        style: {
+                          fontFamily:
+                            'Consolas, Monaco, "Courier New", monospace',
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                        },
+                      }}
+                      wrapLongLines={true}
+                    >
+                      {currentExercise.codeContext.before.join("\n")}
+                    </SyntaxHighlighter>
+                  )}
 
                   {/* Line with the blank */}
-                  <div className="flex items-center gap-2 my-2">
-                    <span className="text-gray-400">
-                      {currentExercise.codeContext.blankLine}
-                    </span>
-                    <span className="inline-flex px-4 py-1 bg-duo-blue/20 border-2 border-duo-blue/50 rounded-lg text-duo-blue font-bold animate-pulse">
-                      {selectedWords.length > 0 ? selectedWords.join(' ') : '___'}
+                  <div className="flex items-center gap-2 my-2 flex-wrap font-mono text-sm">
+                    {currentExercise.codeContext.blankLine && (
+                      <SyntaxHighlighter
+                        language="typescript"
+                        style={vscDarkPlus}
+                        customStyle={{
+                          margin: 0,
+                          padding: 0,
+                          background: "transparent",
+                          fontSize: "0.875rem",
+                          display: "inline",
+                          opacity: 0.7,
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                          overflowWrap: "break-word",
+                        }}
+                        codeTagProps={{
+                          style: {
+                            fontFamily:
+                              'Consolas, Monaco, "Courier New", monospace',
+                            whiteSpace: "pre-wrap",
+                            wordBreak: "break-word",
+                          },
+                        }}
+                        wrapLongLines={true}
+                      >
+                        {currentExercise.codeContext.blankLine}
+                      </SyntaxHighlighter>
+                    )}
+                    <span className="inline-flex px-4 py-1 bg-duo-blue/20 border-2 border-duo-blue/50 rounded-lg overflow-hidden animate-pulse">
+                      {selectedWords.length > 0 ? (
+                        <SyntaxHighlighter
+                          language="typescript"
+                          style={vscDarkPlus}
+                          customStyle={{
+                            margin: 0,
+                            padding: 0,
+                            background: "transparent",
+                            fontSize: "0.875rem",
+                            display: "inline",
+                            whiteSpace: "pre-wrap",
+                            wordBreak: "break-word",
+                          }}
+                          codeTagProps={{
+                            style: {
+                              fontFamily:
+                                'Consolas, Monaco, "Courier New", monospace',
+                              whiteSpace: "pre-wrap",
+                            },
+                          }}
+                          wrapLongLines={true}
+                        >
+                          {selectedWords.join(" ")}
+                        </SyntaxHighlighter>
+                      ) : (
+                        <span className="text-duo-blue font-bold">___</span>
+                      )}
                     </span>
                   </div>
 
                   {/* Code after the blank */}
-                  {currentExercise.codeContext.after.map((line, index) => (
-                    <div key={`after-${index}`} className="text-gray-500 opacity-60">
-                      {line}
-                    </div>
-                  ))}
-                </pre>
+                  {currentExercise.codeContext.after.length > 0 && (
+                    <SyntaxHighlighter
+                      language="typescript"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        margin: 0,
+                        padding: 0,
+                        background: "transparent",
+                        fontSize: "0.875rem",
+                        opacity: 0.6,
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+                        overflowWrap: "break-word",
+                      }}
+                      codeTagProps={{
+                        style: {
+                          fontFamily:
+                            'Consolas, Monaco, "Courier New", monospace',
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                        },
+                      }}
+                      wrapLongLines={true}
+                    >
+                      {currentExercise.codeContext.after.join("\n")}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
               </div>
             )}
 
@@ -577,8 +684,12 @@ export default function Lesson() {
                       key={`bank-placeholder-${index}`}
                       className="px-6 py-3 rounded-2xl border-2 border-dashed border-gray-700 bg-transparent"
                       style={{
-                        width: wordWidths.has(index) ? `${wordWidths.get(index)}px` : "auto",
-                        minWidth: wordWidths.has(index) ? `${wordWidths.get(index)}px` : undefined,
+                        width: wordWidths.has(index)
+                          ? `${wordWidths.get(index)}px`
+                          : "auto",
+                        minWidth: wordWidths.has(index)
+                          ? `${wordWidths.get(index)}px`
+                          : undefined,
                       }}
                     >
                       <span className="opacity-0 text-lg font-bold">word</span>
@@ -588,7 +699,9 @@ export default function Lesson() {
                       key={`available-${index}`}
                       id={`bank-${word}-${index}`}
                       word={word}
-                      onClick={() => handleWordClick(word, true, undefined, index)}
+                      onClick={() =>
+                        handleWordClick(word, true, undefined, index)
+                      }
                       disabled={showFeedback}
                       onMeasure={(width) => {
                         // Only store width if not already measured
@@ -655,9 +768,7 @@ export default function Lesson() {
                         {t("lesson.correctAnswer")}{" "}
                         <span className="inline-flex gap-1">
                           {currentExercise.correctAnswer.map((word, idx) => (
-                            <span key={idx}>
-                              {getMonospaceWord(word)}
-                            </span>
+                            <span key={idx}>{getMonospaceWord(word)}</span>
                           ))}
                         </span>
                       </p>

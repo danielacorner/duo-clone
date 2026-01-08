@@ -19,6 +19,7 @@ interface LessonState {
   wordWidths: Map<number, number>;
   originalPositions: Map<string, number>;
   selectedWordOrigins: Map<number, number>;
+  showHint: boolean;
 
   // Actions
   initializeLesson: (lessonId: string) => void;
@@ -40,6 +41,7 @@ interface LessonState {
   setActiveId: (id: string | null) => void;
   reorderWords: (newOrder: string[]) => void;
   setWordWidth: (index: number, width: number) => void;
+  setShowHint: (show: boolean) => void;
 }
 
 export const useLessonStore = create<LessonState>()(
@@ -59,6 +61,7 @@ export const useLessonStore = create<LessonState>()(
       wordWidths: new Map(),
       originalPositions: new Map(),
       selectedWordOrigins: new Map(),
+      showHint: false,
 
       // Actions
       initializeLesson: (lessonId) => {
@@ -208,6 +211,8 @@ export const useLessonStore = create<LessonState>()(
             showFeedback: false,
             isCorrect: null,
             selectedWords: [],
+            availableWords: [], // Reset available words to force re-initialization
+            showHint: false,
           });
 
           // Check if hearts depleted
@@ -225,9 +230,7 @@ export const useLessonStore = create<LessonState>()(
 
         // Move current exercise to end of queue
         const newQueue = get().exerciseQueue.slice(1);
-        if (newQueue.length > 0) {
-          newQueue.push(exerciseId);
-        }
+        newQueue.push(exerciseId);
 
         set({
           skippedExerciseIds: newSkipped,
@@ -235,6 +238,7 @@ export const useLessonStore = create<LessonState>()(
           selectedWords: [],
           showFeedback: false,
           isCorrect: null,
+          showHint: false,
         });
       },
 
@@ -283,6 +287,8 @@ export const useLessonStore = create<LessonState>()(
           set({ wordWidths: newWidths });
         }
       },
+
+      setShowHint: (show) => set({ showHint: show }),
     }),
     {
       name: "lesson-storage",

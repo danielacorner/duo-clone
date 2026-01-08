@@ -35,7 +35,10 @@
     "check": "CHECK",
     "continue": "CONTINUE",
     "complete": "COMPLETE",
-    "skip": "SKIP"
+    "skip": "SKIP",
+    "practiceComplete": "Practice Complete!",
+    "tryAgain": "Try Again",
+    "retry": "PRACTICE AGAIN"
   },
   "learningPath": {
     "unit": "Unit {{number}}",
@@ -65,12 +68,14 @@
     "privacy": "Privacy"
   },
   "common": {
-    "start": "Start"
+    "start": "Start",
+    "continue": "CONTINUE",
+    "quit": "QUIT"
   },
   "units": {
     "unit1": {
       "title": "Unit 1",
-      "description": "Self-Improvement Advice"
+      "description": "React Basics"
     },
     "unit2": {
       "title": "Unit 2",

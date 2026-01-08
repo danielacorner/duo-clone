@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useStore } from "../store/useStore";
@@ -114,10 +114,13 @@ function LessonNode({ node, onClick }: LessonNodeProps) {
 }
 
 export default function LearningPath() {
-  const { units } = useStore();
+  const { units, lastInteractedLessonId, setLastInteractedLessonId } = useStore();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [selectedLesson, setSelectedLesson] = useState<string | null>(null);
+  
+  // Store refs for all lesson nodes to scroll to specific ones
+  const nodeRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // Find the first available (unlocked but not completed) lesson
   const findFirstAvailableLesson = () => {
@@ -133,8 +136,30 @@ export default function LearningPath() {
 
   const firstAvailable = findFirstAvailableLesson();
 
+  // Scroll logic
+  useEffect(() => {
+    // Priority 1: Last interacted lesson (user clicked it recently)
+    if (lastInteractedLessonId) {
+      const nodeRef = nodeRefs.current.get(lastInteractedLessonId);
+      if (nodeRef) {
+        nodeRef.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+    }
+
+    // Priority 2: First available lesson (next up)
+    // We can use the START tooltip ref if we want, or the node ref directly.
+    // Let's use the node ref for consistency.
+    if (firstAvailable) {
+      const nodeRef = nodeRefs.current.get(firstAvailable.node.id);
+      if (nodeRef) {
+        nodeRef.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [lastInteractedLessonId, firstAvailable]); // Re-run if these change
+
   const handleNodeClick = (nodeId: string) => {
-    // Open modal for all lessons (including locked)
+    setLastInteractedLessonId(nodeId);
     setSelectedLesson(nodeId);
   };
 
@@ -195,11 +220,18 @@ export default function LearningPath() {
               <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gray-700 -translate-x-1/2 opacity-20" />
 
               {unit.nodes.map((node) => (
-                <LessonNode
+                <div
                   key={node.id}
-                  node={node}
-                  onClick={() => handleNodeClick(node.id)}
-                />
+                  ref={(el) => {
+                    if (el) nodeRefs.current.set(node.id, el);
+                    else nodeRefs.current.delete(node.id);
+                  }}
+                >
+                  <LessonNode
+                    node={node}
+                    onClick={() => handleNodeClick(node.id)}
+                  />
+                </div>
               ))}
 
               {/* START tooltip - appears above first available lesson */}

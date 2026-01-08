@@ -56,6 +56,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['function', 'Greeting', '()', '{', 'return', '<h1>', 'Welcome!', '</h1>', '}'],
         wordBank: ['function', 'Greeting', '()', '{', 'return', '<h1>', 'Welcome!', '</h1>', '}', 'class', 'render', 'const'],
         tip:'Function components return JSX',
+        hint: 'Define a function "Greeting" that returns an <h1> element',
         codeContext: {
           before: [
             '// Greeting.tsx',
@@ -76,6 +77,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['export', 'default', 'Welcome'],
         wordBank: ['export', 'default', 'Welcome', 'import', 'function', 'const', 'module'],
         tip:'Use default export',
+        hint: 'Use "export default" followed by the component name "Welcome"',
         codeContext: {
           before: [
             '// Welcome.tsx',
@@ -126,6 +128,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['<div>', '<h1>', 'Title', '</h1>', '<p>', 'Text', '</p>', '</div>'],
         wordBank: ['<div>', '<h1>', 'Title', '</h1>', '<p>', 'Text', '</p>', '</div>', '<>', '</>'],
         tip:'Wrap multiple elements in a parent',
+        hint: 'Wrap the <h1> and <p> elements inside a parent <div>',
         codeContext: {
           before: [
             'function Card() {',
@@ -204,6 +207,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['function', 'App', '()', '{', 'return', '<h1>', 'Hello', '</h1>', '}'],
         wordBank: ['function', 'App', '()', '{', 'return', '<h1>', 'Hello', '</h1>', '}', 'class', 'render', 'const'],
         tip:'Combine component declaration and JSX return',
+        hint: 'Define function App() and return an <h1>Hello</h1>',
         codeContext: {
           before: [
             '// App.tsx',
@@ -224,6 +228,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['<div>', '{props.message}', '</div>'],
         wordBank: ['<div>', '{props.message}', '</div>', '(props.message)', 'props.message', '${props.message}'],
         tip:'Access props with dot notation inside curly braces',
+        hint: 'Wrap "props.message" in curly braces inside the div',
         codeContext: {
           before: [
             'function MessageDisplay(props) {',
@@ -393,6 +398,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['useEffect(()=>{', 'fetchData()', '},', '[]', ')'],
         wordBank: ['useEffect(()=>{', 'fetchData()', '},', '[]', ')', '[data]', 'useEffect'],
         tip:'Empty dependency array runs once on mount',
+        hint: 'Use an empty dependency array [] to run the effect only once',
         codeContext: {
           before: [
             'import { useState, useEffect } from "react"',
@@ -451,6 +457,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['{hasError', '&&', '<ErrorMessage/>}'],
         wordBank: ['{hasError', '&&', '<ErrorMessage/>}', '?', ':', 'if', '||'],
         tip:'Use && to render only when condition is true',
+        hint: 'Use the logical AND operator (&&) to render <ErrorMessage/> if hasError is true',
         codeContext: {
           before: [
             'function Form() {',
@@ -483,6 +490,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['{items.map(item', '=>', '<li', 'key={item.id}', '>{item.name}</li>)}'],
         wordBank: ['{items.map(item', '=>', '<li', 'key={item.id}', '>{item.name}</li>)}', 'key=', 'id=', 'forEach'],
         tip:'Always add key prop to list items',
+        hint: 'Map over items and return an <li> with a unique key prop',
         codeContext: {
           before: [
             'function ItemList({ items }) {',
@@ -504,6 +512,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['{users.filter(u', '=>', 'u.active).map(u', '=>', '<User', 'key={u.id}', '/>)}'],
         wordBank: ['{users.filter(u', '=>', 'u.active).map(u', '=>', '<User', 'key={u.id}', '/>)}', 'forEach', 'if', 'id='],
         tip:'Chain filter and map for conditional lists',
+        hint: 'First filter the users, then map them to <User> components',
         codeContext: {
           before: [
             'function ActiveUsers({ users }) {',
@@ -533,6 +542,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['<input', 'value={name}', 'onChange={handleChange}', '/>'],
         wordBank: ['<input', 'value={name}', 'onChange={handleChange}', '/>', 'onchange=', 'defaultValue='],
         tip:'Use value and onChange for controlled inputs',
+        hint: 'Set the value prop to name and onChange to handleChange',
         codeContext: {
           before: [
             'function NameForm() {',
@@ -556,6 +566,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['<form', 'onSubmit={handleSubmit}', '>', '<button', 'type=', '"submit"', '>', 'Submit', '</button>', '</form>'],
         wordBank: ['<form', 'onSubmit={handleSubmit}', '>', '<button', 'type=', '"submit"', '>', 'Submit', '</button>', '</form>', 'onClick=', 'onsubmit='],
         tip:'Use onSubmit on form element',
+        hint: 'Add onSubmit={handleSubmit} to the form tag',
         codeContext: {
           before: [
             'function ContactForm() {',
@@ -588,6 +599,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['<Child', 'value={count}', 'onChange={setCount}', '/>'],
         wordBank: ['<Child', 'value={count}', 'onChange={setCount}', '/>', 'state=', 'setState='],
         tip:'Pass both value and setter to child',
+        hint: 'Pass count as value and setCount as onChange prop',
         codeContext: {
           before: [
             'function Parent() {',
@@ -609,6 +621,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['const', '[text,', 'setText]', '=', 'useState(', '""', ')'],
         wordBank: ['const', '[text,', 'setText]', '=', 'useState(', '""', ')', 'null', 'undefined', 'let'],
         tip:'Initialize state in parent to share with children',
+        hint: 'Create state called text with default value ""',
         codeContext: {
           before: [
             'import { useState } from "react"',
@@ -643,6 +656,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['const', 'ThemeContext', '=', 'createContext()'],
         wordBank: ['const', 'ThemeContext', '=', 'createContext()', 'React.createContext()', 'useContext()'],
         tip:'Use createContext to create a new context',
+        hint: 'Call createContext() and assign it to ThemeContext',
         codeContext: {
           before: [
             '// ThemeContext.tsx',
@@ -697,6 +711,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['function', 'useLocalStorage(key)', '{', 'return', '[value,', 'setValue]', '}'],
         wordBank: ['function', 'useLocalStorage(key)', '{', 'return', '[value,', 'setValue]', '}', 'const', 'hook'],
         tip:'Custom hooks must start with "use"',
+        hint: 'Define function useLocalStorage that takes a key argument',
         codeContext: {
           before: [
             '// useLocalStorage.ts',
@@ -746,6 +761,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['const', '[state,', 'dispatch]', '=', 'useReducer(reducer,', 'initialState)'],
         wordBank: ['const', '[state,', 'dispatch]', '=', 'useReducer(reducer,', 'initialState)', 'useState', 'reducer'],
         tip:'useReducer takes reducer function and initial state',
+        hint: 'Destructure [state, dispatch] from useReducer',
         codeContext: {
           before: [
             'import { useReducer } from "react"',
@@ -770,6 +786,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['dispatch({', 'type:', '"INCREMENT",', 'payload:', '1', '})'],
         wordBank: ['dispatch({', 'type:', '"INCREMENT",', 'payload:', '1', '})', 'setState', 'action'],
         tip:'Dispatch objects with type and payload',
+        hint: 'Call dispatch with an action object containing type "INCREMENT"',
         codeContext: {
           before: [
             'function Counter() {',
@@ -801,6 +818,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['const', 'result', '=', 'useMemo(()=>', 'expensiveCalc(a,b),', '[a,b])'],
         wordBank: ['const', 'result', '=', 'useMemo(()=>', 'expensiveCalc(a,b),', '[a,b])', 'memo', 'useEffect'],
         tip:'useMemo caches value until dependencies change',
+        hint: 'Wrap expensiveCalc call in useMemo with [a,b] dependency array',
         codeContext: {
           before: [
             'import { useMemo } from "react"',
@@ -827,6 +845,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['const', 'filtered', '=', 'useMemo(()=>', 'items.filter(filterFn),', '[items,', 'filterFn])'],
         wordBank: ['const', 'filtered', '=', 'useMemo(()=>', 'items.filter(filterFn),', '[items,', 'filterFn])', '[]', 'useEffect'],
         tip:'Avoid re-filtering on every render',
+        hint: 'Memoize the filter result using useMemo',
         codeContext: {
           before: [
             'import { useMemo } from "react"',
@@ -860,6 +879,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['const', 'handleClick', '=', 'useCallback(()=>{', 'doSomething()', '},', '[dependency])'],
         wordBank: ['const', 'handleClick', '=', 'useCallback(()=>{', 'doSomething()', '},', '[dependency])', 'useMemo', '[]'],
         tip:'useCallback prevents function recreation on every render',
+        hint: 'Wrap the callback function in useCallback',
         codeContext: {
           before: [
             'import { useCallback } from "react"',
@@ -883,6 +903,7 @@ export const lessons: Record<string, Lesson> = {
         correctAnswer: ['<Button', 'onClick={memoizedHandler}', '/>'],
         wordBank: ['<Button', 'onClick={memoizedHandler}', '/>', 'onClick={()=>handler()}', 'handler=', 'function='],
         tip:'Prevents child re-renders when parent re-renders',
+        hint: 'Pass memoizedHandler to the onClick prop',
         codeContext: {
           before: [
             'function Parent() {',

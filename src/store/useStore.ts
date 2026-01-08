@@ -5,10 +5,12 @@ interface AppState {
   user: User;
   quests: Quest[];
   units: Unit[];
+  lastInteractedLessonId: string | null;
   updateXP: (amount: number) => void;
   updateQuestProgress: (questId: string, progress: number) => void;
   completeLesson: (lessonId: string) => void;
   unlockLesson: (lessonId: string) => void;
+  setLastInteractedLessonId: (lessonId: string) => void;
 }
 
 const mockQuests: Quest[] = [
@@ -254,6 +256,7 @@ export const useStore = create<AppState>((set) => ({
   user: mockUser,
   quests: mockQuests,
   units: mockUnits,
+  lastInteractedLessonId: null,
   updateXP: (amount: number) =>
     set((state) => ({
       user: { ...state.user, xp: state.user.xp + amount },
@@ -266,6 +269,7 @@ export const useStore = create<AppState>((set) => ({
     })),
   completeLesson: (lessonId: string) =>
     set((state) => ({
+      lastInteractedLessonId: lessonId,
       units: state.units.map((unit) => ({
         ...unit,
         nodes: unit.nodes.map((node) =>
@@ -286,4 +290,6 @@ export const useStore = create<AppState>((set) => ({
         ),
       })),
     })),
+  setLastInteractedLessonId: (lessonId: string) =>
+    set({ lastInteractedLessonId: lessonId }),
 }));

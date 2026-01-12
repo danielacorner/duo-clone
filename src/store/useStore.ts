@@ -243,13 +243,22 @@ const mockUnits: Unit[] = import.meta.env.DEV
 
 const mockUser: User = {
   name: "User",
+  username: "react_learner", // Added username
   level: 4,
   xp: 8,
   streak: 35,
   gems: 3787,
   lingots: 1944,
-  league: "자수정 리그",
+  league: "Amethyst League",
   leagueRank: 1936,
+  joinedAt: "January 2024", // Added joined date
+  following: 12, // Added following count
+  followers: 8, // Added followers count
+  totalXp: 1250, // Added total lifetime XP
+  courses: [
+    { name: "React", xp: 1250 },
+    { name: "TypeScript", xp: 300 },
+  ], // Added courses progress
 };
 
 export const useStore = create<AppState>((set) => ({

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "../store/useStore";
 import type { LessonNode as LessonNodeType } from "../types";
 import LessonModal from "./LessonModal";
-import { a, nav } from "framer-motion/client";
+
 
 interface LessonNodeProps {
   node: LessonNodeType;

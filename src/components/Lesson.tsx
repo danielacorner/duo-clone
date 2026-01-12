@@ -162,16 +162,17 @@ interface DroppableAreaProps {
   id: string;
   children: React.ReactNode;
   className?: string;
+  active?: boolean;
 }
 
-function DroppableArea({ id, children, className }: DroppableAreaProps) {
+function DroppableArea({ id, children, className, active }: DroppableAreaProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
     <div
       ref={setNodeRef}
       className={`${className} ${
-        isOver ? "ring-2 ring-duo-green ring-opacity-50" : ""
+        isOver || active ? "ring-2 ring-duo-green ring-opacity-50" : ""
       } transition-all`}
     >
       {children}
@@ -219,6 +220,7 @@ export default function Lesson() {
   const [lessonResult, setLessonResult] = useState<"success" | "failure" | null>(
     null
   );
+  const [overId, setOverId] = useState<string | null>(null);
 
   // Ref for measuring word widths before adding to store
   const wordWidthsRef = useRef<Map<number, number>>(new Map());
@@ -363,6 +365,7 @@ export default function Lesson() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveIdInStore(null);
+    setOverId(null);
 
     if (!over || showFeedback || !currentExercise) return;
 
@@ -452,6 +455,11 @@ export default function Lesson() {
   };
 
   const canCheck = selectedWords.length > 0 && !showFeedback;
+  
+  // Check if we are dragging a word from the bank and hovering over the answer area or its items
+  const isAnswerAreaActive = 
+    activeId?.startsWith("bank-") && 
+    (overId === "answer-area" || overId?.startsWith("selected-"));
 
   return (
     <DndContext
@@ -459,6 +467,7 @@ export default function Lesson() {
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragOver={(event) => setOverId(event.over?.id as string || null)}
     >
       <div className="min-h-screen bg-duo-dark flex flex-col">
         {/* Header with progress */}
@@ -659,6 +668,7 @@ export default function Lesson() {
             <DroppableArea
               id="answer-area"
               className="mb-2 min-h-[60px] border-b-2 border-gray-700 pb-2 rounded-xl"
+              active={!!isAnswerAreaActive}
             >
               <SortableContext
                 items={selectedWords.map(

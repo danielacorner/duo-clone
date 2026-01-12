@@ -96,17 +96,34 @@ export const useLessonStore = create<LessonState>()(
 
           if (foundBankIndex === -1) return;
 
-          // Store which bank position this word came from
-          const futureSelectedIndex = get().selectedWords.length;
-          const newSelectedWordOrigins = new Map(get().selectedWordOrigins);
-          newSelectedWordOrigins.set(futureSelectedIndex, foundBankIndex);
+          // Determine where to insert
+          // If selectedIndex is undefined, append to end
+          const insertAt =
+            selectedIndex !== undefined
+              ? selectedIndex
+              : get().selectedWords.length;
+
+          // Update origin map: Shift everything at or after insertAt up by 1
+          const newSelectedWordOrigins = new Map();
+          get().selectedWordOrigins.forEach((bIdx, sIdx) => {
+            if (sIdx >= insertAt) {
+              newSelectedWordOrigins.set(sIdx + 1, bIdx);
+            } else {
+              newSelectedWordOrigins.set(sIdx, bIdx);
+            }
+          });
+          newSelectedWordOrigins.set(insertAt, foundBankIndex);
+
+          // Update selected words
+          const newSelectedWords = [...get().selectedWords];
+          newSelectedWords.splice(insertAt, 0, word);
 
           // Update available words (replace with null to maintain layout)
           const newAvailable = [...get().availableWords];
           newAvailable[foundBankIndex] = null;
 
           set({
-            selectedWords: [...get().selectedWords, word],
+            selectedWords: newSelectedWords,
             availableWords: newAvailable,
             selectedWordOrigins: newSelectedWordOrigins,
           });

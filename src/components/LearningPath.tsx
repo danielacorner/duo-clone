@@ -4,13 +4,11 @@ import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "../store/useStore";
 import type { LessonNode as LessonNodeType } from "../types";
-import LessonModal from "./LessonModal";
-
+import LessonPopover from "./LessonModal";
 
 interface LessonNodeProps {
   node: LessonNodeType;
   onClick: () => void;
-  isAvailable: boolean;
   isNext: boolean;
 }
 
@@ -18,20 +16,26 @@ function LessonNode({
   node,
   onClick,
   isNext,
-}: Omit<LessonNodeProps, "isAvailable">) {
+}: LessonNodeProps) {
+  const devMode = useStore((state) => state.devMode);
+
+  // Effective status considers devMode
+  const isLocked = node.status === "locked" && !devMode;
+  const isCompleted = node.status === "completed";
+  
   const getNodeStyles = () => {
-    if (node.status === "locked") {
+    if (isLocked) {
       return {
         bg: "bg-gray-700",
         shadow: "shadow-none",
         border: "border-b-4 border-gray-600",
-        cursor: "cursor-pointer",
+        cursor: "cursor-pointer", // Keep pointer to allow clicking (to show locked msg)
         icon: "🔒",
         showCheckmark: false,
         opacity: "opacity-60",
       };
     }
-    if (node.status === "completed") {
+    if (isCompleted) {
       if (node.type === "story") {
         return {
           bg: "bg-gradient-to-b from-yellow-400 to-yellow-500",
@@ -53,7 +57,7 @@ function LessonNode({
         opacity: "opacity-100",
       };
     }
-    // Available / Next
+    // Available / Next (or Locked but DevMode is on)
     if (node.type === "practice") {
       return {
         bg: "bg-gradient-to-b from-blue-400 to-blue-500",
@@ -79,14 +83,11 @@ function LessonNode({
   const styles = getNodeStyles();
 
   return (
-    <div
-      className="absolute transform -translate-x-1/2"
-      style={{ left: `${node.position.x}%`, top: `${node.position.y}%` }}
-    >
+    <>
       {/* Ripple effect for the next lesson */}
-      {isNext && (
+      {isNext && !isLocked && (
         <motion.div
-          className="absolute inset-0 rounded-full bg-cyan-400/30"
+          className="absolute inset-0 rounded-full bg-cyan-400/30 -z-10"
           initial={{ scale: 1, opacity: 0.8 }}
           animate={{ scale: 1.5, opacity: 0 }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
@@ -94,20 +95,15 @@ function LessonNode({
       )}
 
       <motion.button
-        onClick={onClick}
-        whileHover={node.status !== "locked" ? { scale: 1.1, y: -2 } : {}}
-        whileTap={node.status !== "locked" ? { scale: 0.95, y: 2 } : {}}
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{
-          type: "spring",
-          stiffness: 260,
-          damping: 20,
-          delay: 0.1,
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick();
         }}
+        whileHover={!isLocked ? { scale: 1.1, y: -2 } : {}}
+        whileTap={!isLocked ? { scale: 0.95, y: 2 } : {}}
         className={`relative w-20 h-20 md:w-24 md:h-24 rounded-full ${styles.bg} ${styles.shadow} ${styles.border} ${styles.cursor} ${styles.opacity} flex items-center justify-center text-4xl z-10`}
       >
-        {node.type === "practice" && node.status === "completed" ? (
+        {node.type === "practice" && isCompleted ? (
           <div className="relative w-full h-full flex items-center justify-center">
             <span className="text-white text-3xl drop-shadow-md">💪</span>
           </div>
@@ -129,16 +125,46 @@ function LessonNode({
           </motion.div>
         )}
       </motion.button>
-    </div>
+    </>
+  );
+}
+
+// Tooltip Component
+function LessonTooltip({ title, nodeColor }: { title: string, nodeColor: string }) {
+  const colorMap: Record<string, string> = {
+    cyan: "bg-cyan-500 text-white",
+    green: "bg-green-500 text-white",
+    yellow: "bg-yellow-500 text-yellow-900",
+    amber: "bg-amber-500 text-amber-900",
+    blue: "bg-blue-500 text-white",
+    red: "bg-red-500 text-white",
+    gray: "bg-gray-600 text-gray-200",
+  };
+
+  const bgClass = colorMap[nodeColor] || "bg-white text-gray-900";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10, scale: 0.8 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 10, scale: 0.8 }}
+      className="absolute -top-16 left-1/2 -translate-x-1/2 z-40 pointer-events-none whitespace-nowrap"
+    >
+      <div className={`${bgClass} px-4 py-2 rounded-xl font-bold text-sm shadow-xl border-2 border-white/10`}>
+        {title}
+      </div>
+      {/* Triangle */}
+      <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 rotate-45 ${bgClass} border-b-2 border-r-2 border-white/10`} />
+    </motion.div>
   );
 }
 
 export default function LearningPath() {
-  const { units, lastInteractedLessonId, setLastInteractedLessonId, devMode } =
-    useStore();
+  const { units, lastInteractedLessonId, setLastInteractedLessonId, devMode } = useStore();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [selectedLesson, setSelectedLesson] = useState<string | null>(null);
+  const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
+  const [hoveredLessonId, setHoveredLessonId] = useState<string | null>(null);
 
   // Store refs for all lesson nodes to scroll to specific ones
   const nodeRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -175,25 +201,44 @@ export default function LearningPath() {
         nodeRef.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
-  }, [lastInteractedLessonId, firstAvailable]);
+  }, []);
 
+  // Click handler to toggle selection
   const handleNodeClick = (nodeId: string) => {
     setLastInteractedLessonId(nodeId);
-    setSelectedLesson(nodeId);
-  };
-
-  const handleStartLesson = () => {
-    if (selectedLesson) {
-      navigate(`/lesson/${selectedLesson}`);
+    if (selectedLessonId === nodeId) {
+      setSelectedLessonId(null);
+    } else {
+      setSelectedLessonId(nodeId);
     }
   };
 
-  const handleCloseModal = () => {
-    setSelectedLesson(null);
+  const handleStartLesson = () => {
+    if (selectedLessonId) {
+      navigate(`/lesson/${selectedLessonId}`);
+    }
+  };
+
+  const handleClosePopover = () => {
+    setSelectedLessonId(null);
+  };
+
+  // Helper to determine node color name
+  const getNodeColorName = (node: LessonNodeType) => {
+    const isLocked = node.status === "locked" && !devMode;
+    if (isLocked) return "gray";
+    if (node.status === "completed") {
+      return node.type === "story" ? "yellow" : "amber";
+    }
+    if (node.type === "practice") return "blue";
+    return "cyan";
   };
 
   return (
-    <div className="min-h-screen bg-[#131F24] overflow-y-auto relative">
+    <div 
+      className="min-h-screen bg-[#131F24] overflow-y-auto relative"
+      onClick={() => setSelectedLessonId(null)} // Close popover when clicking background
+    >
       {/* Background Pattern */}
       <div
         className="absolute inset-0 opacity-5 pointer-events-none"
@@ -236,9 +281,10 @@ export default function LearningPath() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="bg-cyan-500 hover:bg-cyan-400 text-[#0f172a] px-6 py-3 rounded-xl font-bold transition-colors shadow-lg shadow-cyan-500/20 flex items-center gap-2"
-                  onClick={() =>
-                    window.open("https://react.dev/learn", "_blank")
-                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open("https://react.dev/learn", "_blank");
+                  }}
                 >
                   <span className="text-lg">📘</span> Guidebook
                 </motion.button>
@@ -263,16 +309,12 @@ export default function LearningPath() {
             {/* Lesson Nodes */}
             <div className="relative min-h-[500px]">
               {/* Background path line */}
-              {/* Using SVG for a smoother curved path could be an upgrade, but keeping simple line for now */}
               <div className="absolute left-1/2 top-0 bottom-0 w-2 bg-[#202F36] -translate-x-1/2 rounded-full" />
 
               {unit.nodes.map((node) => {
-                // In Dev Mode, treat locked nodes as available
-                const effectiveStatus =
-                  devMode && node.status === "locked"
-                    ? "available"
-                    : node.status;
-                const effectiveNode = { ...node, status: effectiveStatus };
+                const isSelected = selectedLessonId === node.id;
+                const isHovered = hoveredLessonId === node.id;
+                const nodeColor = getNodeColorName(node);
 
                 return (
                   <div
@@ -281,19 +323,46 @@ export default function LearningPath() {
                       if (el) nodeRefs.current.set(node.id, el);
                       else nodeRefs.current.delete(node.id);
                     }}
+                    className="absolute transform -translate-x-1/2"
+                    style={{ left: `${node.position.x}%`, top: `${node.position.y}%` }}
+                    onMouseEnter={() => setHoveredLessonId(node.id)}
+                    onMouseLeave={() => setHoveredLessonId(null)}
                   >
                     <LessonNode
-                      node={effectiveNode}
+                      node={node}
                       onClick={() => handleNodeClick(node.id)}
                       isNext={firstAvailable?.node.id === node.id}
                     />
+
+                    {/* Tooltip (Hover) - Only show if not selected */}
+                    <AnimatePresence>
+                      {isHovered && !isSelected && (
+                        <LessonTooltip 
+                          title={t(`lessons.${node.title}.title`) || node.title} 
+                          nodeColor={nodeColor}
+                        />
+                      )}
+                    </AnimatePresence>
+
+                    {/* Popover (Selected) */}
+                    <AnimatePresence>
+                      {isSelected && (
+                        <LessonPopover
+                          lessonId={node.id}
+                          status={node.status}
+                          onClose={handleClosePopover}
+                          onStart={handleStartLesson}
+                          nodeColor={nodeColor}
+                        />
+                      )}
+                    </AnimatePresence>
                   </div>
                 );
               })}
 
               {/* START tooltip - Animated */}
               <AnimatePresence>
-                {firstAvailable && firstAvailable.unit.id === unit.id && (
+                {firstAvailable && firstAvailable.unit.id === unit.id && !selectedLessonId && (
                   <motion.div
                     initial={{ y: -10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -331,58 +400,7 @@ export default function LearningPath() {
             </div>
           </div>
         ))}
-
-        {/* Bottom Floating Menu - Playful & Useful */}
-        {/* <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30">
-          <motion.div 
-            initial={{ y: 100 }}
-            animate={{ y: 0 }}
-            className="flex items-center gap-4 bg-[#1e293b]/90 backdrop-blur-md px-6 py-3 rounded-full border border-gray-700 shadow-2xl"
-          >
-            {[
-              { icon: "📚", label: "Guide" },
-              { icon: "⚛️", label: "Practice", active: true },
-              { icon: "🏆", label: "Rank" }
-            ].map((item, i) => (
-              <motion.button 
-                key={i}
-                whileHover={{ scale: 1.1, y: -2 }}
-                whileTap={{ scale: 0.9 }}
-                className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-colors ${
-                  item.active 
-                    ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/50" 
-                    : "hover:bg-gray-700 text-gray-400"
-                }`}
-              >
-                <span className="text-xl">{item.icon}</span>
-              </motion.button>
-            ))}
-          </motion.div>
-        </div> */}
-        {/* Decided to comment out for now */}
       </div>
-
-      {/* Lesson Modal */}
-      {selectedLesson &&
-        (() => {
-          const selectedNode = units
-            .flatMap((unit) => unit.nodes)
-            .find((node) => node.id === selectedLesson);
-
-          const effectiveStatus =
-            devMode && selectedNode?.status === "locked"
-              ? "available"
-              : selectedNode?.status || "locked";
-
-          return (
-            <LessonModal
-              lessonId={selectedLesson}
-              status={effectiveStatus}
-              onClose={handleCloseModal}
-              onStart={handleStartLesson}
-            />
-          );
-        })()}
     </div>
   );
 }

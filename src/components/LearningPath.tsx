@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "../store/useStore";
 import type { LessonNode as LessonNodeType } from "../types";
 import LessonPopover from "./LessonModal";
+import { lessons } from "../data/lessons";
 
 interface LessonNodeProps {
   node: LessonNodeType;
@@ -12,17 +13,13 @@ interface LessonNodeProps {
   isNext: boolean;
 }
 
-function LessonNode({
-  node,
-  onClick,
-  isNext,
-}: LessonNodeProps) {
+function LessonNode({ node, onClick, isNext }: LessonNodeProps) {
   const devMode = useStore((state) => state.devMode);
 
   // Effective status considers devMode
   const isLocked = node.status === "locked" && !devMode;
   const isCompleted = node.status === "completed";
-  
+
   const getNodeStyles = () => {
     if (isLocked) {
       return {
@@ -130,7 +127,13 @@ function LessonNode({
 }
 
 // Tooltip Component
-function LessonTooltip({ title, nodeColor }: { title: string, nodeColor: string }) {
+function LessonTooltip({
+  title,
+  nodeColor,
+}: {
+  title: string;
+  nodeColor: string;
+}) {
   const colorMap: Record<string, string> = {
     cyan: "bg-cyan-500 text-white",
     green: "bg-green-500 text-white",
@@ -150,17 +153,48 @@ function LessonTooltip({ title, nodeColor }: { title: string, nodeColor: string 
       exit={{ opacity: 0, y: 10, scale: 0.8 }}
       className="absolute -top-16 left-1/2 -translate-x-1/2 z-40 pointer-events-none whitespace-nowrap"
     >
-      <div className={`${bgClass} px-4 py-2 rounded-xl font-bold text-sm shadow-xl border-2 border-white/10`}>
+      <div
+        className={`${bgClass} px-4 py-2 rounded-xl font-bold text-sm shadow-xl border-2 border-white/10`}
+      >
         {title}
       </div>
       {/* Triangle */}
-      <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 rotate-45 ${bgClass} border-b-2 border-r-2 border-white/10`} />
+      <div
+        className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 rotate-45 ${bgClass} border-b-2 border-r-2 border-white/10`}
+      />
     </motion.div>
   );
 }
 
+// Generate curved path data for SVG
+function generatePathData(nodes: LessonNodeType[]) {
+  if (nodes.length < 2) return "";
+
+  // Sort nodes by vertical position (y) just in case
+  const sortedNodes = [...nodes].sort((a, b) => a.position.y - b.position.y);
+
+  let d = `M ${sortedNodes[0].position.x} ${sortedNodes[0].position.y}`;
+
+  for (let i = 0; i < sortedNodes.length - 1; i++) {
+    const p1 = sortedNodes[i].position;
+    const p2 = sortedNodes[i + 1].position;
+
+    // Calculate control points for a smooth S-curve
+    // Control points are vertically halfway between p1 and p2
+    const cp1x = p1.x;
+    const cp1y = p1.y + (p2.y - p1.y) * 0.5;
+    const cp2x = p2.x;
+    const cp2y = p1.y + (p2.y - p1.y) * 0.5;
+
+    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+  }
+
+  return d;
+}
+
 export default function LearningPath() {
-  const { units, lastInteractedLessonId, setLastInteractedLessonId, devMode } = useStore();
+  const { units, lastInteractedLessonId, setLastInteractedLessonId, devMode } =
+    useStore();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
@@ -235,7 +269,7 @@ export default function LearningPath() {
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-[#131F24] overflow-y-auto relative"
       onClick={() => setSelectedLessonId(null)} // Close popover when clicking background
     >
@@ -308,13 +342,32 @@ export default function LearningPath() {
 
             {/* Lesson Nodes */}
             <div className="relative min-h-[500px]">
-              {/* Background path line */}
-              <div className="absolute left-1/2 top-0 bottom-0 w-2 bg-[#202F36] -translate-x-1/2 rounded-full" />
+              {/* SVG Curved Path */}
+              <svg
+                className="absolute inset-0 w-full h-full pointer-events-none z-0"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d={generatePathData(unit.nodes)}
+                  fill="none"
+                  stroke="#202F36"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
 
               {unit.nodes.map((node) => {
                 const isSelected = selectedLessonId === node.id;
                 const isHovered = hoveredLessonId === node.id;
                 const nodeColor = getNodeColorName(node);
+                const realLesson = lessons[node.id];
+                const displayTitle =
+                  realLesson?.title ||
+                  t(`lessons.${node.title}.title`) ||
+                  node.title;
 
                 return (
                   <div
@@ -324,7 +377,12 @@ export default function LearningPath() {
                       else nodeRefs.current.delete(node.id);
                     }}
                     className="absolute transform -translate-x-1/2"
-                    style={{ left: `${node.position.x}%`, top: `${node.position.y}%` }}
+                    style={{
+                      left: `${node.position.x}%`,
+                      top: `${node.position.y}%`,
+                      // Bring to front if selected or hovered
+                      zIndex: isSelected || isHovered ? 50 : 10,
+                    }}
                     onMouseEnter={() => setHoveredLessonId(node.id)}
                     onMouseLeave={() => setHoveredLessonId(null)}
                   >
@@ -337,8 +395,8 @@ export default function LearningPath() {
                     {/* Tooltip (Hover) - Only show if not selected */}
                     <AnimatePresence>
                       {isHovered && !isSelected && (
-                        <LessonTooltip 
-                          title={t(`lessons.${node.title}.title`) || node.title} 
+                        <LessonTooltip
+                          title={displayTitle}
                           nodeColor={nodeColor}
                         />
                       )}
@@ -362,40 +420,42 @@ export default function LearningPath() {
 
               {/* START tooltip - Animated */}
               <AnimatePresence>
-                {firstAvailable && firstAvailable.unit.id === unit.id && !selectedLessonId && (
-                  <motion.div
-                    initial={{ y: -10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -10, opacity: 0 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 300,
-                      damping: 20,
-                    }}
-                    className="absolute z-20 -translate-x-1/2 pointer-events-none"
-                    style={{
-                      left: `${firstAvailable.node.position.x}%`,
-                      top: `calc(${firstAvailable.node.position.y}% - 85px)`,
-                    }}
-                  >
+                {firstAvailable &&
+                  firstAvailable.unit.id === unit.id &&
+                  !selectedLessonId && (
                     <motion.div
-                      animate={{ y: [0, -8, 0] }}
+                      initial={{ y: -10, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -10, opacity: 0 }}
                       transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 20,
                       }}
-                      className="relative"
+                      className="absolute z-20 -translate-x-1/2 pointer-events-none"
+                      style={{
+                        left: `${firstAvailable.node.position.x}%`,
+                        top: `calc(${firstAvailable.node.position.y}% - 85px)`,
+                      }}
                     >
-                      <div className="bg-white px-6 py-3 rounded-2xl shadow-xl border-b-4 border-gray-200">
-                        <span className="text-duo-green font-extrabold text-sm tracking-widest">
-                          START
-                        </span>
-                      </div>
-                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-b-4 border-r-4 border-gray-200 transform translate-y-[-50%]"></div>
+                      <motion.div
+                        animate={{ y: [0, -8, 0] }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                        className="relative"
+                      >
+                        <div className="bg-white px-6 py-3 rounded-2xl shadow-xl border-b-4 border-gray-200">
+                          <span className="text-duo-green font-extrabold text-sm tracking-widest">
+                            START
+                          </span>
+                        </div>
+                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-b-4 border-r-4 border-gray-200 transform translate-y-[-50%]"></div>
+                      </motion.div>
                     </motion.div>
-                  </motion.div>
-                )}
+                  )}
               </AnimatePresence>
             </div>
           </div>

@@ -199,9 +199,13 @@ export default function LearningPath() {
   const { t } = useTranslation();
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
   const [hoveredLessonId, setHoveredLessonId] = useState<string | null>(null);
+  const [activeUnitIndex, setActiveUnitIndex] = useState(0);
 
   // Store refs for all lesson nodes to scroll to specific ones
+
   const nodeRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  const unitRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // Find the first available (unlocked but not completed) lesson
   const findFirstAvailableLesson = () => {
@@ -235,7 +239,36 @@ export default function LearningPath() {
         nodeRef.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
-  }, []);
+  }, []); // Run once on mount
+
+  // Intersection Observer for Units
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number(entry.target.getAttribute("data-index"));
+            if (!isNaN(index)) {
+              setActiveUnitIndex(index);
+            }
+          }
+        });
+      },
+      {
+        root: null, // viewport
+        rootMargin: "-20% 0px -60% 0px", // Trigger when unit enters top part of screen
+        threshold: 0,
+      },
+    );
+
+    unitRefs.current.forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [units]);
 
   // Click handler to toggle selection
   const handleNodeClick = (nodeId: string) => {
@@ -282,74 +315,110 @@ export default function LearningPath() {
         }}
       />
 
-      <div className="max-w-3xl mx-auto py-8 px-4 md:py-12 md:px-6 relative z-10">
-        {/* Header - React Themed */}
-        <div className="mb-12">
-          <motion.div
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="bg-[#1e293b] rounded-3xl p-6 border-2 border-[#334155] shadow-xl overflow-hidden relative"
-          >
-            {/* Header Background Decoration */}
-            <div className="absolute -right-10 -top-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl" />
+      {/* Dev Mode Unit Jumper */}
+      {devMode && (
+        <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 bg-gray-800/90 backdrop-blur-sm p-3 rounded-2xl border border-gray-700 shadow-2xl flex flex-col gap-2 max-h-[80vh] overflow-y-auto w-16 items-center scrollbar-hide">
+          <div className="text-[10px] font-black text-cyan-400 text-center mb-1 tracking-wider">
+            JUMP
+          </div>
+          {units.map((u, i) => (
+            <button
+              key={u.id}
+              onClick={(e) => {
+                e.stopPropagation();
+                const el = unitRefs.current.get(u.id);
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+              }}
+              className="w-10 h-10 rounded-xl bg-gray-700/50 hover:bg-cyan-500 hover:text-white text-gray-400 flex items-center justify-center text-sm font-bold transition-all hover:scale-110 active:scale-95 border border-gray-600 hover:border-cyan-400 group relative"
+              title={`Jump to Unit ${i + 1}`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      )}
 
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-              <div 
+      <div className="max-w-3xl mx-auto py-8 px-4 md:py-12 md:px-6 relative z-10 h-[100vh] overflow-y-auto">
+        {" "}
+        {/* Sticky Header - React Themed */}
+        <div className="sticky top-0 z-40 -mt-4 bg-[#131F24]/95 backdrop-blur-xl transition-all duration-300">
+          <div className="bg-[#1e293b] rounded-2xl p-3 md:p-4 border-2 border-[#334155] shadow-xl overflow-hidden relative">
+            {/* Header Background Decoration */}
+            <div className="absolute -right-10 -top-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl" />
+
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
+              <div
                 className="text-left flex-1 cursor-pointer group"
-                onClick={() => navigate('/sections')}
+                onClick={() => navigate("/sections")}
               >
-                <div className="flex items-start gap-4">
-                  <div className="mt-1 text-cyan-400 text-2xl font-bold transition-transform group-hover:-translate-x-2">
+                <div className="flex items-center gap-3">
+                  <div className="text-cyan-400 text-xl font-bold transition-transform group-hover:-translate-x-1">
                     ←
                   </div>
-                  <div>
-                    <h2 className="text-cyan-400 text-sm font-bold tracking-wider mb-2 uppercase group-hover:text-cyan-300 transition-colors">
-                      {units[0]?.title
-                        ? t(`units.${units[0].title}.title`)
-                        : "Unit 1"}
-                    </h2>
-                    <h1 className="text-white text-2xl md:text-3xl font-extrabold mb-2">
-                      {units[0]?.description
-                        ? t(`units.${units[0].description}.description`)
-                        : "React Basics"}
-                    </h1>
-                    <p className="text-slate-400 text-sm">
-                      Master components, props, and state
-                    </p>
-                  </div>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeUnitIndex}
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <h2 className="text-cyan-400 text-xs font-bold tracking-wider mb-0.5 uppercase group-hover:text-cyan-300 transition-colors">
+                        {units[activeUnitIndex]?.title
+                          ? t(`units.${units[activeUnitIndex].title}.title`)
+                          : `Unit ${activeUnitIndex + 1}`}
+                      </h2>
+                      <h1 className="text-white text-lg md:text-xl font-extrabold group-hover:opacity-90 leading-tight">
+                        {units[activeUnitIndex]?.description
+                          ? t(
+                              `units.${units[activeUnitIndex].description}.description`,
+                            )
+                          : units[activeUnitIndex]?.description || "React Basics"}
+                      </h1>
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-cyan-500 hover:bg-cyan-400 text-[#0f172a] px-6 py-3 rounded-xl font-bold transition-colors shadow-lg shadow-cyan-500/20 flex items-center gap-2"
+                  className="bg-cyan-500 hover:bg-cyan-400 text-[#0f172a] px-4 py-2 rounded-lg font-bold transition-colors shadow-lg shadow-cyan-500/20 flex items-center gap-2 text-sm"
                   onClick={(e) => {
                     e.stopPropagation();
                     window.open("https://react.dev/learn", "_blank");
                   }}
                 >
-                  <span className="text-lg">📘</span> Guidebook
+                  <span className="text-base">📘</span> Guide
                 </motion.button>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
-
         {/* Units */}
         {units.map((unit, unitIndex) => (
-          <div key={unit.id} className="mb-24">
+          <div
+            key={unit.id}
+            data-index={unitIndex}
+            className="mb-24"
+            ref={(el) => {
+              if (el) unitRefs.current.set(unit.id, el);
+              else unitRefs.current.delete(unit.id);
+            }}
+          >
             {/* Unit Header (Simplified for subsequent units) */}
             {unitIndex > 0 && (
               <div className="mb-16 text-center">
                 <div className="h-px w-full bg-gray-800 mb-6" />
                 <h2 className="text-slate-500 text-sm font-bold tracking-widest uppercase">
-                  {t(`units.${unit.description}.description`)}
+                  {t(`units.${unit.description}.description`) ||
+                    unit.description}
                 </h2>
               </div>
             )}
-
             {/* Lesson Nodes */}
             <div className="relative min-h-[500px]">
               {/* SVG Curved Path */}

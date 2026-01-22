@@ -294,20 +294,30 @@ export default function LearningPath() {
             <div className="absolute -right-10 -top-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl" />
 
             <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-              <div className="text-left flex-1">
-                <h2 className="text-cyan-400 text-sm font-bold tracking-wider mb-2 uppercase">
-                  {units[0]?.title
-                    ? t(`units.${units[0].title}.title`)
-                    : "Unit 1"}
-                </h2>
-                <h1 className="text-white text-2xl md:text-3xl font-extrabold mb-2">
-                  {units[0]?.description
-                    ? t(`units.${units[0].description}.description`)
-                    : "React Basics"}
-                </h1>
-                <p className="text-slate-400 text-sm">
-                  Master components, props, and state
-                </p>
+              <div 
+                className="text-left flex-1 cursor-pointer group"
+                onClick={() => navigate('/sections')}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="mt-1 text-cyan-400 text-2xl font-bold transition-transform group-hover:-translate-x-2">
+                    ←
+                  </div>
+                  <div>
+                    <h2 className="text-cyan-400 text-sm font-bold tracking-wider mb-2 uppercase group-hover:text-cyan-300 transition-colors">
+                      {units[0]?.title
+                        ? t(`units.${units[0].title}.title`)
+                        : "Unit 1"}
+                    </h2>
+                    <h1 className="text-white text-2xl md:text-3xl font-extrabold mb-2">
+                      {units[0]?.description
+                        ? t(`units.${units[0].description}.description`)
+                        : "React Basics"}
+                    </h1>
+                    <p className="text-slate-400 text-sm">
+                      Master components, props, and state
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center gap-3">

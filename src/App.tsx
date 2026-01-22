@@ -4,6 +4,7 @@ import Home from './components/Home';
 import LearningPath from './components/LearningPath';
 import Lesson from './components/Lesson';
 import Profile from './components/Profile/Profile';
+import Sections from './components/Sections';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="learn" element={<LearningPath />} />
+          <Route path="sections" element={<Sections />} />
           <Route path="practice" element={<div className="min-h-screen flex items-center justify-center"><h1 className="text-white text-3xl">Practice - Coming Soon</h1></div>} />
           <Route path="leaderboard" element={<div className="min-h-screen flex items-center justify-center"><h1 className="text-white text-3xl">Leaderboard - Coming Soon</h1></div>} />
           <Route path="shop" element={<div className="min-h-screen flex items-center justify-center"><h1 className="text-white text-3xl">Shop - Coming Soon</h1></div>} />

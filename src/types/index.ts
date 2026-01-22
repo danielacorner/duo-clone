@@ -10,6 +10,7 @@ export interface Quest {
 
 export interface User {
   name: string;
+  username?: string;
   level: number;
   xp: number;
   streak: number;
@@ -17,6 +18,12 @@ export interface User {
   lingots: number;
   league: string;
   leagueRank: number;
+  joinedAt?: string;
+  following?: number;
+  followers?: number;
+  totalXp?: number;
+  courses?: { name: string; xp: number }[];
+  completedLessonIds: string[];
 }
 
 export interface LessonNode {

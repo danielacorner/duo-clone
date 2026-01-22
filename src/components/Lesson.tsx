@@ -52,7 +52,12 @@ function SortableWordButton({
   disabled,
   showFeedback,
   isCorrect,
-}: Omit<WordButtonProps, "fromBank" | "isSortable">) {
+  insertPlaceholder,
+  placeholderWidth,
+}: Omit<WordButtonProps, "fromBank" | "isSortable"> & {
+  insertPlaceholder?: boolean;
+  placeholderWidth?: number;
+}) {
   const {
     attributes,
     listeners,
@@ -76,29 +81,49 @@ function SortableWordButton({
   };
 
   return (
-    <button
+    <div
       ref={setNodeRef}
       style={style}
       {...listeners}
       {...attributes}
-      onClick={onClick}
-      disabled={disabled || showFeedback}
-      className={`px-6 py-3 rounded-2xl font-bold text-lg ${
-        isDragging ? "opacity-50 scale-105" : "hover:scale-105 active:scale-95"
-      } ${
-        showFeedback
-          ? isCorrect
-            ? "bg-green-500 text-white cursor-default"
-            : "bg-red-500 text-white cursor-default"
-          : "bg-gray-700 text-white hover:bg-gray-600"
+      className={`relative flex items-center ${
+        insertPlaceholder ? "ml-2" : ""
       } ${
         disabled
           ? "opacity-50 cursor-not-allowed"
           : "cursor-grab active:cursor-grabbing"
       }`}
     >
-      {getMonospaceWord(word)}
-    </button>
+      {insertPlaceholder && (
+        <div
+          className="rounded-2xl border-2 border-gray-600 bg-gray-800/50 mr-2 transition-all duration-200"
+          style={{
+            width: placeholderWidth ? `${placeholderWidth}px` : "100px",
+            height: "56px", // Approximate height of a button
+          }}
+        />
+      )}
+      <button
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent drag start if clicking button logic interferes
+          onClick();
+        }}
+        disabled={disabled || showFeedback}
+        className={`px-6 py-3 rounded-2xl font-bold text-lg transition-all ${
+          isDragging
+            ? "opacity-50 scale-105"
+            : "hover:scale-105 active:scale-95"
+        } ${
+          showFeedback
+            ? isCorrect
+              ? "bg-green-500 text-white cursor-default"
+              : "bg-red-500 text-white cursor-default"
+            : "bg-gray-700 text-white hover:bg-gray-600"
+        }`}
+      >
+        {getMonospaceWord(word)}
+      </button>
+    </div>
   );
 }
 
@@ -123,7 +148,7 @@ function DraggableWordButton({
     if (node && onMeasure) {
       // Measure width immediately when ref is set
       const width = node.offsetWidth;
-      console.log(`Measured width: ${width} for word: ${word}`);
+      // Removed console.log to reduce noise
       if (width > 0) {
         onMeasure(width);
       }
@@ -162,16 +187,17 @@ interface DroppableAreaProps {
   id: string;
   children: React.ReactNode;
   className?: string;
+  active?: boolean;
 }
 
-function DroppableArea({ id, children, className }: DroppableAreaProps) {
+function DroppableArea({ id, children, className, active }: DroppableAreaProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
     <div
       ref={setNodeRef}
       className={`${className} ${
-        isOver ? "ring-2 ring-duo-green ring-opacity-50" : ""
+        isOver || active ? "ring-2 ring-duo-green ring-opacity-50" : ""
       } transition-all`}
     >
       {children}
@@ -219,6 +245,7 @@ export default function Lesson() {
   const [lessonResult, setLessonResult] = useState<"success" | "failure" | null>(
     null
   );
+  const [overId, setOverId] = useState<string | null>(null);
 
   // Ref for measuring word widths before adding to store
   const wordWidthsRef = useRef<Map<number, number>>(new Map());
@@ -363,6 +390,7 @@ export default function Lesson() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveIdInStore(null);
+    setOverId(null);
 
     if (!over || showFeedback || !currentExercise) return;
 
@@ -452,6 +480,22 @@ export default function Lesson() {
   };
 
   const canCheck = selectedWords.length > 0 && !showFeedback;
+  
+  // Check if we are dragging a word from the bank and hovering over the answer area or its items
+  const isAnswerAreaActive = 
+    activeId?.startsWith("bank-") && 
+    (overId === "answer-area" || overId?.startsWith("selected-"));
+
+  // Determine if we should show a placeholder
+  // Only when dragging from bank
+  const isDraggingFromBank = activeId?.startsWith("bank-");
+  let draggedWordWidth = 0;
+  if (isDraggingFromBank && activeId) {
+    const bankIndex = parseInt(activeId.split("-")[2]);
+    if (!isNaN(bankIndex) && wordWidths.has(bankIndex)) {
+      draggedWordWidth = wordWidths.get(bankIndex) || 0;
+    }
+  }
 
   return (
     <DndContext
@@ -459,6 +503,7 @@ export default function Lesson() {
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragOver={(event) => setOverId(event.over?.id as string || null)}
     >
       <div className="min-h-screen bg-duo-dark flex flex-col">
         {/* Header with progress */}
@@ -659,6 +704,7 @@ export default function Lesson() {
             <DroppableArea
               id="answer-area"
               className="mb-2 min-h-[60px] border-b-2 border-gray-700 pb-2 rounded-xl"
+              active={!!isAnswerAreaActive}
             >
               <SortableContext
                 items={selectedWords.map(
@@ -667,16 +713,32 @@ export default function Lesson() {
                 strategy={rectSortingStrategy}
               >
                 <div className="flex flex-wrap gap-2 content-start">
-                  {selectedWords.map((word, index) => (
-                    <SortableWordButton
-                      key={`selected-${index}`}
-                      id={`selected-${word}-${index}`}
-                      word={word}
-                      onClick={() => selectWord(word, false, index)}
-                      showFeedback={showFeedback}
-                      isCorrect={isCorrect ?? false}
+                  {selectedWords.map((word, index) => {
+                    const id = `selected-${word}-${index}`;
+                    return (
+                      <SortableWordButton
+                        key={id}
+                        id={id}
+                        word={word}
+                        onClick={() => selectWord(word, false, index)}
+                        showFeedback={showFeedback}
+                        isCorrect={isCorrect ?? false}
+                        insertPlaceholder={isDraggingFromBank && overId === id}
+                        placeholderWidth={draggedWordWidth}
+                      />
+                    );
+                  })}
+                  
+                  {/* Append-to-end placeholder */}
+                  {isDraggingFromBank && overId === "answer-area" && (
+                    <div
+                      className="rounded-2xl border-2 border-gray-600 bg-gray-800/50"
+                      style={{
+                        width: draggedWordWidth ? `${draggedWordWidth}px` : "100px",
+                        height: "56px",
+                      }}
                     />
-                  ))}
+                  )}
                 </div>
               </SortableContext>
             </DroppableArea>

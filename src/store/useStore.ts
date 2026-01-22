@@ -11,6 +11,8 @@ interface AppState {
   completeLesson: (lessonId: string) => void;
   unlockLesson: (lessonId: string) => void;
   setLastInteractedLessonId: (lessonId: string) => void;
+  devMode: boolean;
+  toggleDevMode: () => void;
 }
 
 const mockQuests: Quest[] = [
@@ -56,7 +58,7 @@ const baseMockUnits: Unit[] = [
         type: "lesson",
         status: "completed",
         level: 1,
-        position: { x: 45, y: 5 },
+        position: { x: 50, y: 5 },
       },
       {
         id: "lesson-2",
@@ -64,7 +66,7 @@ const baseMockUnits: Unit[] = [
         type: "story",
         status: "completed",
         level: 1,
-        position: { x: 60, y: 18 },
+        position: { x: 35, y: 30 },
       },
       {
         id: "lesson-3",
@@ -72,7 +74,7 @@ const baseMockUnits: Unit[] = [
         type: "lesson",
         status: "completed",
         level: 1,
-        position: { x: 39, y: 31 },
+        position: { x: 65, y: 55 },
       },
       {
         id: "practice-1",
@@ -80,7 +82,7 @@ const baseMockUnits: Unit[] = [
         type: "practice",
         status: "completed",
         level: 1,
-        position: { x: 62, y: 44 },
+        position: { x: 50, y: 80 },
       },
     ],
   },
@@ -96,7 +98,7 @@ const baseMockUnits: Unit[] = [
         type: "lesson",
         status: "available",
         level: 2,
-        position: { x: 45, y: 10 },
+        position: { x: 50, y: 10 },
       },
       {
         id: "lesson-5",
@@ -104,7 +106,7 @@ const baseMockUnits: Unit[] = [
         type: "lesson",
         status: "locked",
         level: 2,
-        position: { x: 35, y: 25 },
+        position: { x: 35, y: 40 },
       },
       {
         id: "lesson-6",
@@ -112,7 +114,7 @@ const baseMockUnits: Unit[] = [
         type: "lesson",
         status: "locked",
         level: 2,
-        position: { x: 50, y: 40 },
+        position: { x: 65, y: 70 },
       },
     ],
   },
@@ -128,7 +130,7 @@ const baseMockUnits: Unit[] = [
         type: "lesson",
         status: "locked",
         level: 3,
-        position: { x: 50, y: 10 },
+        position: { x: 50, y: 15 },
       },
       {
         id: "lesson-8",
@@ -136,7 +138,7 @@ const baseMockUnits: Unit[] = [
         type: "lesson",
         status: "locked",
         level: 3,
-        position: { x: 40, y: 25 },
+        position: { x: 40, y: 65 },
       },
     ],
   },
@@ -152,7 +154,7 @@ const baseMockUnits: Unit[] = [
         type: "lesson",
         status: "locked",
         level: 4,
-        position: { x: 50, y: 10 },
+        position: { x: 50, y: 15 },
       },
       {
         id: "lesson-10",
@@ -160,7 +162,7 @@ const baseMockUnits: Unit[] = [
         type: "lesson",
         status: "locked",
         level: 4,
-        position: { x: 45, y: 25 },
+        position: { x: 60, y: 65 },
       },
     ],
   },
@@ -176,7 +178,7 @@ const baseMockUnits: Unit[] = [
         type: "lesson",
         status: "locked",
         level: 5,
-        position: { x: 40, y: 10 },
+        position: { x: 45, y: 15 },
       },
       {
         id: "lesson-12",
@@ -184,7 +186,7 @@ const baseMockUnits: Unit[] = [
         type: "lesson",
         status: "locked",
         level: 5,
-        position: { x: 55, y: 25 },
+        position: { x: 55, y: 65 },
       },
     ],
   },
@@ -200,7 +202,7 @@ const baseMockUnits: Unit[] = [
         type: "lesson",
         status: "locked",
         level: 6,
-        position: { x: 45, y: 10 },
+        position: { x: 50, y: 40 },
       },
     ],
   },
@@ -216,7 +218,7 @@ const baseMockUnits: Unit[] = [
         type: "lesson",
         status: "locked",
         level: 7,
-        position: { x: 50, y: 10 },
+        position: { x: 50, y: 15 },
       },
       {
         id: "lesson-15",
@@ -224,39 +226,39 @@ const baseMockUnits: Unit[] = [
         type: "lesson",
         status: "locked",
         level: 7,
-        position: { x: 40, y: 25 },
+        position: { x: 40, y: 65 },
       },
     ],
   },
 ];
 
-// In dev mode, unlock all lessons
-const mockUnits: Unit[] = import.meta.env.DEV
-  ? baseMockUnits.map((unit) => ({
-      ...unit,
-      nodes: unit.nodes.map((node) => ({
-        ...node,
-        status: node.status === "locked" ? ("available" as const) : node.status,
-      })),
-    }))
-  : baseMockUnits;
-
 const mockUser: User = {
   name: "User",
+  username: "react_learner",
   level: 4,
   xp: 8,
   streak: 35,
   gems: 3787,
   lingots: 1944,
-  league: "자수정 리그",
+  league: "Amethyst League",
   leagueRank: 1936,
+  joinedAt: "January 2024",
+  following: 12,
+  followers: 8,
+  totalXp: 1250,
+  courses: [
+    { name: "React", xp: 1250 },
+    { name: "TypeScript", xp: 300 },
+  ],
+  completedLessonIds: ["lesson-1", "lesson-2", "lesson-3", "practice-1"],
 };
 
 export const useStore = create<AppState>((set) => ({
   user: mockUser,
   quests: mockQuests,
-  units: mockUnits,
+  units: baseMockUnits,
   lastInteractedLessonId: null,
+  devMode: false,
   updateXP: (amount: number) =>
     set((state) => ({
       user: { ...state.user, xp: state.user.xp + amount },
@@ -268,17 +270,40 @@ export const useStore = create<AppState>((set) => ({
       ),
     })),
   completeLesson: (lessonId: string) =>
-    set((state) => ({
-      lastInteractedLessonId: lessonId,
-      units: state.units.map((unit) => ({
-        ...unit,
-        nodes: unit.nodes.map((node) =>
-          node.id === lessonId
-            ? { ...node, status: "completed" as const }
-            : node
-        ),
-      })),
-    })),
+    set((state) => {
+      // Flatten all nodes to find index
+      const allNodes = state.units.flatMap((u) => u.nodes);
+      const currentIndex = allNodes.findIndex((n) => n.id === lessonId);
+      const nextNode =
+        currentIndex !== -1 && currentIndex < allNodes.length - 1
+          ? allNodes[currentIndex + 1]
+          : null;
+
+      // Update completed lessons list in user object
+      const updatedUser = {
+        ...state.user,
+        completedLessonIds: state.user.completedLessonIds.includes(lessonId)
+          ? state.user.completedLessonIds
+          : [...state.user.completedLessonIds, lessonId],
+      };
+
+      return {
+        lastInteractedLessonId: lessonId,
+        user: updatedUser,
+        units: state.units.map((unit) => ({
+          ...unit,
+          nodes: unit.nodes.map((node) => {
+            if (node.id === lessonId) {
+              return { ...node, status: "completed" as const };
+            }
+            if (nextNode && node.id === nextNode.id && node.status === "locked") {
+              return { ...node, status: "available" as const };
+            }
+            return node;
+          }),
+        })),
+      };
+    }),
   unlockLesson: (lessonId: string) =>
     set((state) => ({
       units: state.units.map((unit) => ({
@@ -292,4 +317,5 @@ export const useStore = create<AppState>((set) => ({
     })),
   setLastInteractedLessonId: (lessonId: string) =>
     set({ lastInteractedLessonId: lessonId }),
+  toggleDevMode: () => set((state) => ({ devMode: !state.devMode })),
 }));

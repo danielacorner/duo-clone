@@ -79,27 +79,27 @@
     },
     "unit2": {
       "title": "Unit 2",
-      "description": "Basic Conversation"
+      "description": "JSX Fundamentals"
     },
     "unit3": {
       "title": "Unit 3",
-      "description": "Ordering Food"
+      "description": "Props and Data Flow"
     },
     "unit4": {
       "title": "Unit 4",
-      "description": "Discussing Work Projects"
+      "description": "Hooks and State"
     },
     "unit5": {
       "title": "Unit 5",
-      "description": "Advanced React Patterns"
+      "description": "Effects and Lifecycle"
     },
     "unit6": {
       "title": "Unit 6",
-      "description": "State Management"
+      "description": "Forms and Inputs"
     },
     "unit7": {
       "title": "Unit 7",
-      "description": "Performance Optimization"
+      "description": "Context and Reducers"
     },
     "lesson": "Lesson {{number}}",
     "practice": "Practice"

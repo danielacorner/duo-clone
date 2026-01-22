@@ -96,17 +96,34 @@ export const useLessonStore = create<LessonState>()(
 
           if (foundBankIndex === -1) return;
 
-          // Store which bank position this word came from
-          const futureSelectedIndex = get().selectedWords.length;
-          const newSelectedWordOrigins = new Map(get().selectedWordOrigins);
-          newSelectedWordOrigins.set(futureSelectedIndex, foundBankIndex);
+          // Determine where to insert
+          // If selectedIndex is undefined, append to end
+          const insertAt =
+            selectedIndex !== undefined
+              ? selectedIndex
+              : get().selectedWords.length;
+
+          // Update origin map: Shift everything at or after insertAt up by 1
+          const newSelectedWordOrigins = new Map();
+          get().selectedWordOrigins.forEach((bIdx, sIdx) => {
+            if (sIdx >= insertAt) {
+              newSelectedWordOrigins.set(sIdx + 1, bIdx);
+            } else {
+              newSelectedWordOrigins.set(sIdx, bIdx);
+            }
+          });
+          newSelectedWordOrigins.set(insertAt, foundBankIndex);
+
+          // Update selected words
+          const newSelectedWords = [...get().selectedWords];
+          newSelectedWords.splice(insertAt, 0, word);
 
           // Update available words (replace with null to maintain layout)
           const newAvailable = [...get().availableWords];
           newAvailable[foundBankIndex] = null;
 
           set({
-            selectedWords: [...get().selectedWords, word],
+            selectedWords: newSelectedWords,
             availableWords: newAvailable,
             selectedWordOrigins: newSelectedWordOrigins,
           });
@@ -155,10 +172,57 @@ export const useLessonStore = create<LessonState>()(
       },
 
       checkAnswer: (_, correctAnswer) => {
+        const normalizeCodeTokens = (tokens: string[]): string[] => {
+          const normalized = [...tokens];
+          let i = 0;
+          while (i < normalized.length) {
+            // Check for opening tag start (starts with < but not </)
+            if (
+              normalized[i].startsWith("<") &&
+              !normalized[i].startsWith("</")
+            ) {
+              // Find the end of this tag
+              let j = i;
+              let foundEnd = false;
+              // Limit search to reasonable distance to prevent heavy loops on bad data
+              while (j < normalized.length) {
+                if (
+                  normalized[j].endsWith(">") ||
+                  normalized[j].endsWith("/>")
+                ) {
+                  foundEnd = true;
+                  break;
+                }
+                j++;
+              }
+
+              if (foundEnd) {
+                // Sort the attributes (tokens between i and j)
+                if (j > i + 1) {
+                  const attributes = normalized.slice(i + 1, j);
+                  attributes.sort();
+                  // Replace in normalized array
+                  for (let k = 0; k < attributes.length; k++) {
+                    normalized[i + 1 + k] = attributes[k];
+                  }
+                }
+                i = j + 1; // Continue after this tag
+                continue;
+              }
+            }
+            i++;
+          }
+          return normalized;
+        };
+
+        const selectedWords = get().selectedWords;
+        const normalizedSelected = normalizeCodeTokens(selectedWords);
+        const normalizedCorrect = normalizeCodeTokens(correctAnswer);
+
         const isAnswerCorrect =
-          get().selectedWords.length === correctAnswer.length &&
-          get().selectedWords.every(
-            (word, index) => word === correctAnswer[index]
+          selectedWords.length === correctAnswer.length &&
+          normalizedSelected.every(
+            (word, index) => word === normalizedCorrect[index]
           );
 
         set({

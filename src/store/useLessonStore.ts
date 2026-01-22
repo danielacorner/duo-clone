@@ -172,10 +172,57 @@ export const useLessonStore = create<LessonState>()(
       },
 
       checkAnswer: (_, correctAnswer) => {
+        const normalizeCodeTokens = (tokens: string[]): string[] => {
+          const normalized = [...tokens];
+          let i = 0;
+          while (i < normalized.length) {
+            // Check for opening tag start (starts with < but not </)
+            if (
+              normalized[i].startsWith("<") &&
+              !normalized[i].startsWith("</")
+            ) {
+              // Find the end of this tag
+              let j = i;
+              let foundEnd = false;
+              // Limit search to reasonable distance to prevent heavy loops on bad data
+              while (j < normalized.length) {
+                if (
+                  normalized[j].endsWith(">") ||
+                  normalized[j].endsWith("/>")
+                ) {
+                  foundEnd = true;
+                  break;
+                }
+                j++;
+              }
+
+              if (foundEnd) {
+                // Sort the attributes (tokens between i and j)
+                if (j > i + 1) {
+                  const attributes = normalized.slice(i + 1, j);
+                  attributes.sort();
+                  // Replace in normalized array
+                  for (let k = 0; k < attributes.length; k++) {
+                    normalized[i + 1 + k] = attributes[k];
+                  }
+                }
+                i = j + 1; // Continue after this tag
+                continue;
+              }
+            }
+            i++;
+          }
+          return normalized;
+        };
+
+        const selectedWords = get().selectedWords;
+        const normalizedSelected = normalizeCodeTokens(selectedWords);
+        const normalizedCorrect = normalizeCodeTokens(correctAnswer);
+
         const isAnswerCorrect =
-          get().selectedWords.length === correctAnswer.length &&
-          get().selectedWords.every(
-            (word, index) => word === correctAnswer[index]
+          selectedWords.length === correctAnswer.length &&
+          normalizedSelected.every(
+            (word, index) => word === normalizedCorrect[index]
           );
 
         set({

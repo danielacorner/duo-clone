@@ -11,6 +11,8 @@ interface AppState {
   completeLesson: (lessonId: string) => void;
   unlockLesson: (lessonId: string) => void;
   setLastInteractedLessonId: (lessonId: string) => void;
+  devMode: boolean;
+  toggleDevMode: () => void;
 }
 
 const mockQuests: Quest[] = [
@@ -230,20 +232,9 @@ const baseMockUnits: Unit[] = [
   },
 ];
 
-// In dev mode, unlock all lessons
-const mockUnits: Unit[] = import.meta.env.DEV
-  ? baseMockUnits.map((unit) => ({
-      ...unit,
-      nodes: unit.nodes.map((node) => ({
-        ...node,
-        status: node.status === "locked" ? ("available" as const) : node.status,
-      })),
-    }))
-  : baseMockUnits;
-
 const mockUser: User = {
   name: "User",
-  username: "react_learner", // Added username
+  username: "react_learner",
   level: 4,
   xp: 8,
   streak: 35,
@@ -251,21 +242,23 @@ const mockUser: User = {
   lingots: 1944,
   league: "Amethyst League",
   leagueRank: 1936,
-  joinedAt: "January 2024", // Added joined date
-  following: 12, // Added following count
-  followers: 8, // Added followers count
-  totalXp: 1250, // Added total lifetime XP
+  joinedAt: "January 2024",
+  following: 12,
+  followers: 8,
+  totalXp: 1250,
   courses: [
     { name: "React", xp: 1250 },
     { name: "TypeScript", xp: 300 },
-  ], // Added courses progress
+  ],
+  completedLessonIds: ["lesson-1", "lesson-2", "lesson-3", "practice-1"],
 };
 
 export const useStore = create<AppState>((set) => ({
   user: mockUser,
   quests: mockQuests,
-  units: mockUnits,
+  units: baseMockUnits,
   lastInteractedLessonId: null,
+  devMode: false,
   updateXP: (amount: number) =>
     set((state) => ({
       user: { ...state.user, xp: state.user.xp + amount },
@@ -277,17 +270,40 @@ export const useStore = create<AppState>((set) => ({
       ),
     })),
   completeLesson: (lessonId: string) =>
-    set((state) => ({
-      lastInteractedLessonId: lessonId,
-      units: state.units.map((unit) => ({
-        ...unit,
-        nodes: unit.nodes.map((node) =>
-          node.id === lessonId
-            ? { ...node, status: "completed" as const }
-            : node
-        ),
-      })),
-    })),
+    set((state) => {
+      // Flatten all nodes to find index
+      const allNodes = state.units.flatMap((u) => u.nodes);
+      const currentIndex = allNodes.findIndex((n) => n.id === lessonId);
+      const nextNode =
+        currentIndex !== -1 && currentIndex < allNodes.length - 1
+          ? allNodes[currentIndex + 1]
+          : null;
+
+      // Update completed lessons list in user object
+      const updatedUser = {
+        ...state.user,
+        completedLessonIds: state.user.completedLessonIds.includes(lessonId)
+          ? state.user.completedLessonIds
+          : [...state.user.completedLessonIds, lessonId],
+      };
+
+      return {
+        lastInteractedLessonId: lessonId,
+        user: updatedUser,
+        units: state.units.map((unit) => ({
+          ...unit,
+          nodes: unit.nodes.map((node) => {
+            if (node.id === lessonId) {
+              return { ...node, status: "completed" as const };
+            }
+            if (nextNode && node.id === nextNode.id && node.status === "locked") {
+              return { ...node, status: "available" as const };
+            }
+            return node;
+          }),
+        })),
+      };
+    }),
   unlockLesson: (lessonId: string) =>
     set((state) => ({
       units: state.units.map((unit) => ({
@@ -301,4 +317,5 @@ export const useStore = create<AppState>((set) => ({
     })),
   setLastInteractedLessonId: (lessonId: string) =>
     set({ lastInteractedLessonId: lessonId }),
+  toggleDevMode: () => set((state) => ({ devMode: !state.devMode })),
 }));

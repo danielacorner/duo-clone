@@ -134,7 +134,7 @@ function LessonNode({
 }
 
 export default function LearningPath() {
-  const { units, lastInteractedLessonId, setLastInteractedLessonId } =
+  const { units, lastInteractedLessonId, setLastInteractedLessonId, devMode } =
     useStore();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -266,21 +266,30 @@ export default function LearningPath() {
               {/* Using SVG for a smoother curved path could be an upgrade, but keeping simple line for now */}
               <div className="absolute left-1/2 top-0 bottom-0 w-2 bg-[#202F36] -translate-x-1/2 rounded-full" />
 
-              {unit.nodes.map((node) => (
-                <div
-                  key={node.id}
-                  ref={(el) => {
-                    if (el) nodeRefs.current.set(node.id, el);
-                    else nodeRefs.current.delete(node.id);
-                  }}
-                >
-                  <LessonNode
-                    node={node}
-                    onClick={() => handleNodeClick(node.id)}
-                    isNext={firstAvailable?.node.id === node.id}
-                  />
-                </div>
-              ))}
+              {unit.nodes.map((node) => {
+                // In Dev Mode, treat locked nodes as available
+                const effectiveStatus =
+                  devMode && node.status === "locked"
+                    ? "available"
+                    : node.status;
+                const effectiveNode = { ...node, status: effectiveStatus };
+
+                return (
+                  <div
+                    key={node.id}
+                    ref={(el) => {
+                      if (el) nodeRefs.current.set(node.id, el);
+                      else nodeRefs.current.delete(node.id);
+                    }}
+                  >
+                    <LessonNode
+                      node={effectiveNode}
+                      onClick={() => handleNodeClick(node.id)}
+                      isNext={firstAvailable?.node.id === node.id}
+                    />
+                  </div>
+                );
+              })}
 
               {/* START tooltip - Animated */}
               <AnimatePresence>
@@ -360,10 +369,15 @@ export default function LearningPath() {
             .flatMap((unit) => unit.nodes)
             .find((node) => node.id === selectedLesson);
 
+          const effectiveStatus =
+            devMode && selectedNode?.status === "locked"
+              ? "available"
+              : selectedNode?.status || "locked";
+
           return (
             <LessonModal
               lessonId={selectedLesson}
-              status={selectedNode?.status || "locked"}
+              status={effectiveStatus}
               onClose={handleCloseModal}
               onStart={handleStartLesson}
             />

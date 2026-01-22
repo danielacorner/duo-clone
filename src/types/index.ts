@@ -23,6 +23,7 @@ export interface User {
   followers?: number;
   totalXp?: number;
   courses?: { name: string; xp: number }[];
+  completedLessonIds: string[];
 }
 
 export interface LessonNode {
